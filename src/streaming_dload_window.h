@@ -18,10 +18,10 @@
 #include "ui_streaming_dload_window.h"
 #include "qc/streaming_dload.h"
 #include "qc/streaming_dload_serial.h"
-#include "gui/task/streaming_dload_read_task.h"
-#include "gui/task/streaming_dload_stream_write_task.h"
-#include "gui/task/task_runner.h"
-#include "gui/about_dialog.h"
+#include "task/streaming_dload_read_task.h"
+#include "task/streaming_dload_stream_write_task.h"
+#include "task/task_runner.h"
+#include "about_dialog.h"
 #include <iostream>
 #include <fstream>
 

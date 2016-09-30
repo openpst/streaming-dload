@@ -8,7 +8,7 @@
 *
 * @author Gassan Idriss <ghassani@gmail.com>
 */
-#include "gui/streaming_dload_window.h"
+#include "streaming_dload_window.h"
 
 using namespace OpenPST::GUI;
 

@@ -8,8 +8,8 @@
 * @author Gassan Idriss <ghassani@gmail.com>
 */
 
-#include "gui/application.h"
-#include "gui/streaming_dload_window.h"
+#include "application.h"
+#include "streaming_dload_window.h"
 
 /**
  * @brief main
