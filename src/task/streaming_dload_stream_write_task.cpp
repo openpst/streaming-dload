@@ -9,7 +9,7 @@
 * @author Gassan Idriss <ghassani@gmail.com>
 */
 
-#include "gui/task/streaming_dload_stream_write_task.h"
+#include "task/streaming_dload_stream_write_task.h"
 
 using namespace OpenPST::GUI;
 

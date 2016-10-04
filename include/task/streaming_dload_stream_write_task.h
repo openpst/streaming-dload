@@ -12,9 +12,9 @@
 #define _GUI_TASK_STREAMING_DLOAD_WRITE_TASK_H
 
 #include <QThread>
-#include "qc/streaming_dload_serial.h"
-#include "qc/streaming_dload.h"
-#include "gui/task/task.h"
+#include "qualcomm/streaming_dload_serial.h"
+#include "qualcomm/streaming_dload.h"
+#include "task/task.h"
 
 using OpenPST::QC::StreamingDloadSerial;
 

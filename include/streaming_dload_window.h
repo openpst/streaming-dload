@@ -16,8 +16,8 @@
 #include <QMessageBox>
 #include <QCloseEvent>
 #include "ui_streaming_dload_window.h"
-#include "qc/streaming_dload.h"
-#include "qc/streaming_dload_serial.h"
+#include "qualcomm/streaming_dload.h"
+#include "qualcomm/streaming_dload_serial.h"
 #include "task/streaming_dload_read_task.h"
 #include "task/streaming_dload_stream_write_task.h"
 #include "task/task_runner.h"

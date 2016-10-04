@@ -1,45 +1,60 @@
 #-------------------------------------------------
-# PLACEHOLDER
+# QMake Build Script for: openpst/streaming-dload
 #-------------------------------------------------
 
-QT += core gui
+lessThan(QT_MAJOR_VERSION, 5): error("At least Qt 5.0 is required")
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+QT += core gui widgets
 
 CONFIG += C++11
 
-TARGET = streaming_dload
+TARGET = streaming-dload
 
 TEMPLATE = app
 
-INCLUDEPATH += $$PWD/../src $$PWD/../lib/serial/include
+equals(BASE_DIR, ""):		BASE_DIR 		= $$PWD
+equals(LIBOPENPST_DIR, ""):	LIBOPENPST_DIR 	= $$PWD/lib/libopenpst
+equals(GUICOMMON_DIR, ""):  GUICOMMON_DIR 	= $$PWD/lib/gui-common
+equals(BUILD_DIR, ""):   	BUILD_DIR 		= $$PWD/build
 
-DEPENDPATH += $$PWD/../
+INCLUDEPATH += \
+	$$BASE_DIR/include \
+	$$LIBOPENPST_DIR/include \
+	$$LIBOPENPST_DIR/lib/serial/include \
+	$$GUICOMMON_DIR/include
 
-VPATH += $$PWD/../
+DEPENDPATH += $$BASE_DIR/
+
+VPATH += $$BASE_DIR/
 
 SOURCES += \
-    src/util/hexdump.cpp \
-    src/gui/streaming_dload_window.cpp \
-    src/gui/worker/streaming_dload_read_worker.cpp \
-    src/gui/worker/streaming_dload_stream_write_worker.cpp \
-    src/gui/application.cpp \
-    src/streaming_dload.cpp
+    $$BASE_DIR/src/streaming_dload_window.cpp \
+    $$BASE_DIR/src/task/streaming_dload_read_task.cpp \
+    $$BASE_DIR/src/task/streaming_dload_stream_write_task.cpp \
+    $$BASE_DIR/src/main.cpp
 
 HEADERS  += \
-    src/include/definitions.h \
-    src/util/hexdump.h \
-    src/gui/streaming_dload_window.h \
-    src/gui/worker/streaming_dload_read_worker.h \
-    src/gui/worker/streaming_dload_stream_write_worker.h \
-    src/gui/application.h
+    $$BASE_DIR/src/streaming_dload_window.h \
+    $$BASE_DIR/src/task/streaming_dload_read_task.h \
+    $$BASE_DIR/src/task/streaming_dload_stream_write_task.h
 
 
-FORMS  += resources/ui/streaming_dload_window.ui \
-    ../resources/ui/progress_group_widget.ui
+FORMS  += $$BASE_DIR/resources/ui/streaming_dload_window.ui
 
-RESOURCES = resources/streaming_dload.qrc
+RESOURCES = $$BASE_DIR/resources/streaming_dload.qrc
 
-win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/release/  -llibopenpst -lserial
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/debug/ -llibopenpst -lserial
-else:unix: LIBS += -L$$OUT_PWD/ -llibopenpst -lserial
+###
+## Include gui-common .pro
+###
+
+include($$GUICOMMON_DIR/gui-common.pro)
+
+###
+## Make libopenpst and link against it
+###
+
+QMAKE_EXTRA_TARGETS += libopenpst
+PRE_TARGETDEPS 		+= libopenpst
+libopenpst.commands = cd $$LIBOPENPST_DIR && make qmake
+
+LIBS += -L$$LIBOPENPST_DIR/build -lopenpst
