@@ -15,15 +15,15 @@ using namespace OpenPST::GUI;
 #define log(m) ui->logWidget->log(m); 
 
 StreamingDloadWindow::StreamingDloadWindow(QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::StreamingDloadWindow),
-    port("", 115200),
-    taskRunner(&taskShouldCancel)
+	QMainWindow(parent),
+	ui(new Ui::StreamingDloadWindow),
+	port("", 115200),
+	taskRunner(&taskShouldCancel)
 {
 	ui->setupUi(this);
 	 
-    ui->securityModeValue->addItem("0x01 - Trusted", kStreamingDloadSecurityModeTrusted);
-    ui->securityModeValue->addItem("0x00 - Untrusted", kStreamingDloadSecurityModeUntrusted);
+	ui->securityModeValue->addItem("0x01 - Trusted", kStreamingDloadSecurityModeTrusted);
+	ui->securityModeValue->addItem("0x00 - Untrusted", kStreamingDloadSecurityModeUntrusted);
 	ui->securityModeValue->setCurrentIndex(0);
 	
 	ui->openModeValue->addItem("0x01 - Bootloader Download", kStreamingDloadOpenModeBootloader);
@@ -81,7 +81,7 @@ StreamingDloadWindow::StreamingDloadWindow(QWidget *parent) :
 	QObject::connect(ui->eccSetButton, SIGNAL(clicked()), this, SLOT(setEccState()));
 	QObject::connect(ui->openModeButton, SIGNAL(clicked()), this, SLOT(openMode()));
 	
-    QObject::connect(ui->openMultiButton, SIGNAL(clicked()), this, SLOT(openMultiMode()));
+	QObject::connect(ui->openMultiButton, SIGNAL(clicked()), this, SLOT(openMultiMode()));
 
 	QObject::connect(ui->closeModeButton, SIGNAL(clicked()), this, SLOT(closeMode()));
 	QObject::connect(ui->openMultiCloseButton, SIGNAL(clicked()), this, SLOT(closeMode()));
@@ -91,8 +91,8 @@ StreamingDloadWindow::StreamingDloadWindow(QWidget *parent) :
 	QObject::connect(ui->writeFileBrowseButton, SIGNAL(clicked()), this, SLOT(browseForWriteFile()));
 	QObject::connect(ui->streamWriteButton, SIGNAL(clicked()), this, SLOT(streamWrite()));
 
-    QObject::connect(ui->progressGroupBox->cancelButton, SIGNAL(clicked()), this, SLOT(cancelCurrentTask()));
-    QObject::connect(ui->progressGroupBox->cancelAllButton, SIGNAL(clicked()), this, SLOT(cancelAllTasks()));
+	QObject::connect(ui->progressGroupBox->cancelButton, SIGNAL(clicked()), this, SLOT(cancelCurrentTask()));
+	QObject::connect(ui->progressGroupBox->cancelAllButton, SIGNAL(clicked()), this, SLOT(cancelAllTasks()));
 
 	updatePortList();
 }
@@ -108,30 +108,30 @@ StreamingDloadWindow::~StreamingDloadWindow()
 
 void StreamingDloadWindow::updatePortList()
 {
-    if (port.isOpen()) {
-        log("Port is currently open");
-        return;
-    }
+	if (port.isOpen()) {
+		log("Port is currently open");
+		return;
+	}
 
-    std::vector<serial::PortInfo> devices = serial::list_ports();
+	std::vector<serial::PortInfo> devices = serial::list_ports();
 
-    ui->portList->clear();
-    ui->portList->addItem("- Select a Port -");
+	ui->portList->clear();
+	ui->portList->addItem("- Select a Port -");
 
-    QString tmp;
+	QString tmp;
 
-    log(tmp.sprintf("Found %d devices", devices.size()));
+	log(tmp.sprintf("Found %d devices", devices.size()));
 
-    for (auto device : serial::list_ports())  {
+	for (auto device : serial::list_ports())  {
 
-        log(tmp.sprintf("%s %s %s",
-            device.port.c_str(),
-            device.hardware_id.c_str(),
-            device.description.c_str()
-        ));
+		log(tmp.sprintf("%s %s %s",
+			device.port.c_str(),
+			device.hardware_id.c_str(),
+			device.description.c_str()
+		));
 
-        ui->portList->addItem(tmp, device.port.c_str());
-    }
+		ui->portList->addItem(tmp, device.port.c_str());
+	}
 }
 /**
 * @brief StreamingDloadWindow::connectToPort
@@ -158,10 +158,10 @@ void StreamingDloadWindow::connectToPort()
 				if (!port.isOpen()){
 					port.open();
 				}
-                
+				
 				log(tmp.sprintf("Connected to %s", device.port.c_str()));
 
-                ui->portDisconnectButton->setEnabled(true);
+				ui->portDisconnectButton->setEnabled(true);
 
 			} catch (serial::IOException e) {
 				log(tmp.sprintf("Error connecting to device on %s", device.port.c_str()));
@@ -796,104 +796,104 @@ void StreamingDloadWindow::streamWriteErrorHandler(StreamingDloadStreamWriteWork
 
 void StreamingDloadWindow::cancelCurrentTask()
 {
-    taskShouldCancel = true;
-    taskRunner.waitForDone();
+	taskShouldCancel = true;
+	taskRunner.waitForDone();
 }
 
 void StreamingDloadWindow::cancelAllTasks()
 {
-    taskRunner.clearQueue();
-    cancelCurrentTask();
-    taskCount = 0;
-    ui->progressGroupBox->disableCancel();
-    ui->progressGroupBox->disableCancelAll();
-    ui->progressGroupBox->setTaskCount(taskCount);
+	taskRunner.clearQueue();
+	cancelCurrentTask();
+	taskCount = 0;
+	ui->progressGroupBox->disableCancel();
+	ui->progressGroupBox->disableCancelAll();
+	ui->progressGroupBox->setTaskCount(taskCount);
 }
 
 void StreamingDloadWindow::onTaskStarted()
 {
-    ui->progressGroupBox->enableCancel();
+	ui->progressGroupBox->enableCancel();
 
-    if (taskCount > 1) {
-        ui->progressGroupBox->enableCancelAll();
-    }
+	if (taskCount > 1) {
+		ui->progressGroupBox->enableCancelAll();
+	}
 }
 
 void StreamingDloadWindow::onTaskComplete()
 {
-    QString tmp;
+	QString tmp;
 
-    if (taskCount > 0) {
-        taskCount--;
-    }
+	if (taskCount > 0) {
+		taskCount--;
+	}
 
-    ui->progressGroupBox->setTaskCount(taskCount);
+	ui->progressGroupBox->setTaskCount(taskCount);
 
-    if (!taskCount) {
-        ui->progressGroupBox->disableCancel();
-        ui->progressGroupBox->disableCancelAll();
-    }
+	if (!taskCount) {
+		ui->progressGroupBox->disableCancel();
+		ui->progressGroupBox->disableCancelAll();
+	}
 }
 
 void StreamingDloadWindow::onTaskAborted()
 {
-    QString tmp;
+	QString tmp;
 
-    if (taskCount > 0) {
-        taskCount--;
-    }
+	if (taskCount > 0) {
+		taskCount--;
+	}
 
-    ui->progressGroupBox->setTaskCount(taskCount);
+	ui->progressGroupBox->setTaskCount(taskCount);
 
-    if (!taskCount) {
-        ui->progressGroupBox->disableCancel();
-        ui->progressGroupBox->disableCancelAll();
-    }
+	if (!taskCount) {
+		ui->progressGroupBox->disableCancel();
+		ui->progressGroupBox->disableCancelAll();
+	}
 }
 
 void StreamingDloadWindow::onTaskError(QString msg)
 {
-    QString tmp;
+	QString tmp;
 
-    if (taskCount > 0) {
-        taskCount--;
-    }
+	if (taskCount > 0) {
+		taskCount--;
+	}
 
-    ui->progressGroupBox->setTaskCount(taskCount);
+	ui->progressGroupBox->setTaskCount(taskCount);
 
-    if (!taskCount) {
-        ui->progressGroupBox->disableCancel();
-        ui->progressGroupBox->disableCancelAll();
-    }
+	if (!taskCount) {
+		ui->progressGroupBox->disableCancel();
+		ui->progressGroupBox->disableCancelAll();
+	}
 
-    log(msg);
+	log(msg);
 }
 
 void StreamingDloadWindow::onTaskLog(QString msg)
 {
-    log(msg);
+	log(msg);
 }
 
 void StreamingDloadWindow::showAboutDialog()
 {
-    aboutDialog.exec();
+	aboutDialog.exec();
 }
 
 void StreamingDloadWindow::closeEvent(QCloseEvent *event)
 {
 
-    if (taskRunner.isRunning()) {
-        QMessageBox::StandardButton answer = QMessageBox::question(
-            this,
-            tr("Active Tasks Running"),
-            tr("There are active tasks running. Are you sure?")
-        );
+	if (taskRunner.isRunning()) {
+		QMessageBox::StandardButton answer = QMessageBox::question(
+			this,
+			tr("Active Tasks Running"),
+			tr("There are active tasks running. Are you sure?")
+		);
 
-        if (answer == QMessageBox::No) {
-            event->ignore();
-            return;
-        }
-    }
+		if (answer == QMessageBox::No) {
+			event->ignore();
+			return;
+		}
+	}
 
-    event->accept();
+	event->accept();
 }
