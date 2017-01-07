@@ -4,28 +4,21 @@
 
 lessThan(QT_MAJOR_VERSION, 5): error("At least Qt 5.0 is required")
 
-QT += core gui widgets
-
-CONFIG += C++11
-
-TARGET = streaming-dload
-
+QT       += core gui widgets
+CONFIG   += C++11 debug_and_release build_all
+TARGET   = streaming-dload
 TEMPLATE = app
 
-equals(BASE_DIR, ""):		BASE_DIR 		= $$PWD
-equals(LIBOPENPST_DIR, ""):	LIBOPENPST_DIR 	= $$PWD/lib/libopenpst
-equals(GUICOMMON_DIR, ""):  GUICOMMON_DIR 	= $$PWD/lib/gui-common
-equals(BUILD_DIR, ""):   	BUILD_DIR 		= $$PWD/build
+equals(BASE_DIR, ""):  BASE_DIR = $$PWD
 
-INCLUDEPATH += \
-	$$BASE_DIR/include \
-	$$LIBOPENPST_DIR/include \
-	$$LIBOPENPST_DIR/lib/serial/include \
-	$$GUICOMMON_DIR/include
+include($$BASE_DIR/lib/gui-common/gui-common.pri)
+include($$BASE_DIR/lib/gui-common/gui-common.pro)
+include($$BASE_DIR/lib/libopenpst/libopenpst.pri)
 
-DEPENDPATH += $$BASE_DIR/
-
-VPATH += $$BASE_DIR/
+INCLUDEPATH +=  $$BASE_DIR/include \
+                $$BASE_DIR/lib/libopenpst/include \
+                $$BASE_DIR/lib/libopenpst/lib/serial/include \
+                $$BASE_DIR/lib/gui-common/include 
 
 SOURCES += \
     $$BASE_DIR/src/streaming_dload_window.cpp \
@@ -34,27 +27,10 @@ SOURCES += \
     $$BASE_DIR/src/main.cpp
 
 HEADERS  += \
-    $$BASE_DIR/src/streaming_dload_window.h \
-    $$BASE_DIR/src/task/streaming_dload_read_task.h \
-    $$BASE_DIR/src/task/streaming_dload_stream_write_task.h
-
+    $$BASE_DIR/include/streaming_dload_window.h \
+    $$BASE_DIR/include/task/streaming_dload_read_task.h \
+    $$BASE_DIR/include/task/streaming_dload_stream_write_task.h
 
 FORMS  += $$BASE_DIR/resources/ui/streaming_dload_window.ui
 
 RESOURCES = $$BASE_DIR/resources/streaming_dload.qrc
-
-###
-## Include gui-common .pro
-###
-
-include($$GUICOMMON_DIR/gui-common.pro)
-
-###
-## Make libopenpst and link against it
-###
-
-QMAKE_EXTRA_TARGETS += libopenpst
-PRE_TARGETDEPS 		+= libopenpst
-libopenpst.commands = cd $$LIBOPENPST_DIR && make qmake
-
-LIBS += -L$$LIBOPENPST_DIR/build -lopenpst
