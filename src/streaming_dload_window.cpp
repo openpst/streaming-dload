@@ -12,9 +12,6 @@
 
 using namespace OpenPST::GUI;
 
-using OpenPST::QC::StreamingDloadSerialError;
-using OpenPST::Serial::SerialError;
-
 #define log(m) ui->logWidget->log(m); 
 
 StreamingDloadWindow::StreamingDloadWindow(QWidget *parent) :
@@ -166,9 +163,9 @@ void StreamingDloadWindow::connectToPort()
 
 				ui->portDisconnectButton->setEnabled(true);
 
-			} catch (serial::IOException e) {
+			} catch (SerialError e) {
 				log(tmp.sprintf("Error connecting to device on %s", device.port.c_str()));
-				log(e.getErrorNumber() == 13 ? "Permission Denied" : e.what());
+				log(e.getCode() == 13 ? "Permission Denied" : e.what());
 				return;
 			}
 			break;

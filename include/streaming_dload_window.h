@@ -29,6 +29,9 @@ namespace Ui {
 	class StreamingDloadWindow;
 }
 
+using OpenPST::QC::StreamingDloadSerialError;
+using OpenPST::Serial::SerialError;
+
 namespace OpenPST{
 	namespace GUI {
 		class StreamingDloadWindow : public QMainWindow
