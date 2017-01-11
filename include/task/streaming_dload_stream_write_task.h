@@ -8,8 +8,8 @@
 *
 * @author Gassan Idriss <ghassani@gmail.com>
 */
-#ifndef _GUI_TASK_STREAMING_DLOAD_WRITE_TASK_H
-#define _GUI_TASK_STREAMING_DLOAD_WRITE_TASK_H
+
+#pragma once
 
 #include <QThread>
 #include "qualcomm/streaming_dload_serial.h"
@@ -35,5 +35,3 @@ namespace OpenPST {
 		};
 	}
 }
-
-#endif // _GUI_TASK_STREAMING_DLOAD_WRITE_TASK_H

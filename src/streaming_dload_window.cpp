@@ -12,6 +12,9 @@
 
 using namespace OpenPST::GUI;
 
+using OpenPST::QC::StreamingDloadSerialError;
+using OpenPST::Serial::SerialError;
+
 #define log(m) ui->logWidget->log(m); 
 
 StreamingDloadWindow::StreamingDloadWindow(QWidget *parent) :
@@ -222,11 +225,19 @@ void StreamingDloadWindow::sendHello()
 	uint8_t compatibleVersion = std::stoul(ui->helloCompatibleVersionValue->text().toStdString().c_str(), nullptr, 16);
 	uint8_t featureBits = std::stoul(ui->helloFeatureBitsValue->text().toStdString().c_str(), nullptr, 16);
 	
-	/*if (!port.sendHello(magic, version, compatibleVersion, featureBits)) {
-		log("Error Sending Hello");
-		return;
-	}	*/
-	
+	try {
+		port.sendHello(magic, version, compatibleVersion, featureBits);
+	} catch (StreamingDloadSerialError& e) {
+		log(e.what());
+		return disconnectPort();
+	} catch(serial::SerialException& e) {
+		log(e.what());
+		return disconnectPort();
+	} catch (serial::IOException e) {
+		log(e.what());
+		return disconnectPort();
+	}
+
 	log(tmp.sprintf("Hello Response: %02X", port.state.hello.command));
 	log(tmp.sprintf("Magic: %s", port.state.hello.magic));
 	log(tmp.sprintf("Version: %02X", port.state.hello.version));
@@ -258,14 +269,24 @@ void StreamingDloadWindow::setSecurityMode()
 	}
 	
 	QString tmp;
+	bool result;
 	uint8_t mode = ui->securityModeValue->currentData().toUInt();
-
-	if (!port.setSecurityMode(mode)) {
-		log(tmp.sprintf("Error setting security mode to %s", mode == 0x00 ? "Untrusted" : "Trusted" ));
+	
+	try {
+		result = port.setSecurityMode(mode);
+	} catch (StreamingDloadSerialError& e) {
+		log(tmp.sprintf("Error setting security mode to %s - %s", (mode == 0x00 ? "Untrusted" : "Trusted"), e.what() ));
+		return;
+	} catch (serial::IOException e) {
+		log(tmp.sprintf("Error setting security mode to %s - %s", (mode == 0x00 ? "Untrusted" : "Trusted"), e.what() ));
 		return;
 	}
 
-	log(tmp.sprintf("Setting security mode set to %s", mode == 0x00 ? "Untrusted" : "Trusted"));
+	if (result) {
+		log(tmp.sprintf("Security mode set to %s", mode == 0x00 ? "Untrusted" : "Trusted"));
+	} else {
+		log(tmp.sprintf("Error setting security mode to %s", mode == 0x00 ? "Untrusted" : "Trusted"));
+	}	
 }
 
 /**
@@ -282,8 +303,13 @@ void StreamingDloadWindow::sendUnlock()
 		ui->unlockCodeValue->setText("0000");
 	}
 
-	if (!port.sendUnlock(ui->unlockCodeValue->text().toStdString())) {
-		log("Error Sending Unlock");
+	try {
+		port.sendUnlock(ui->unlockCodeValue->text().toStdString());
+	} catch (StreamingDloadSerialError& e) {
+		log(e.what());
+		return;
+	} catch (serial::IOException e) {
+		log(e.what());
 		return;
 	}
 }
@@ -299,10 +325,15 @@ void StreamingDloadWindow::sendNop()
 		return;
 	}
 
-	/*if (!port.sendNop()) {
-		log("Error Sending NOP");
+	try {
+		port.sendUnlock(ui->unlockCodeValue->text().toStdString());
+	} catch (StreamingDloadSerialError& e) {
+		log(e.what());
 		return;
-	}*/
+	} catch (serial::IOException e) {
+		log(e.what());
+		return;
+	}
 
 	log("NOP Success");
 }
@@ -317,13 +348,20 @@ void StreamingDloadWindow::sendReset()
 		return;
 	}
 
-	/*if (!port.sendReset()) {
-		log("Error Sending Reset");
+	try {
+		port.sendReset();
+		log("Device Resetting");
+		port.close();
+		
+	} catch (StreamingDloadSerialError& e) {
+		log(e.what());
 		return;
-	}*/
+	} catch (serial::IOException e) {
+		log(e.what());
+		return;
+	}
 
-	log("Device Resetting");
-	port.close();
+	
 }
 
 /**
@@ -336,13 +374,19 @@ void StreamingDloadWindow::sendPowerDown()
 		return;
 	}
 
-	/*if (!port.sendPowerOff()) {
-		log("Error Sending Power Down");
+	try {
+		port.sendPowerOff();
+		log("Device Powering Down");
+		port.close();		
+	} catch (StreamingDloadSerialError& e) {
+		log(e.what());
 		return;
-	}*/
+	} catch (serial::IOException e) {
+		log(e.what());
+		return;
+	}
 
-	log("Device Powering Down");
-	port.close();
+	
 }
 
 /**
@@ -355,20 +399,20 @@ void StreamingDloadWindow::openMode()
 		return;
 	}
 
-	if (!port.isOpen()) {
-		log("Port Not Open");
-		return;
-	}
-
 	QString tmp;
 	uint8_t mode = ui->openModeValue->currentData().toUInt();
 
-	if (!port.openMode(mode)) {
-		log(tmp.sprintf("Error Opening Mode %s", port.getNamedOpenMode(mode)));
+	try {
+		if (port.openMode(mode)) {
+			log(tmp.sprintf("Opened Mode %s", port.getNamedOpenMode(mode)));
+		}
+	} catch (StreamingDloadSerialError& e) {
+		log(e.what());
+		return;
+	} catch (serial::IOException e) {
+		log(e.what());
 		return;
 	}
-
-	log(tmp.sprintf("Opened Mode %s", port.getNamedOpenMode(mode)));
 }
 
 
@@ -382,12 +426,17 @@ void StreamingDloadWindow::closeMode()
 		return;
 	}
 
-	if (!port.closeMode()) {
-		log("Error Closing Mode");
+	try {
+		if (port.closeMode()) {
+			log("Mode Closed");
+		}
+	} catch (StreamingDloadSerialError& e) {
+		log(e.what());
+		return;
+	} catch (serial::IOException e) {
+		log(e.what());
 		return;
 	}
-
-	log("Mode Closed");
 }
 
 /**

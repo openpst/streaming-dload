@@ -8,8 +8,8 @@
 *
 * @author Gassan Idriss <ghassani@gmail.com>
 */
-#ifndef _GUI_TASK_STREAMING_DLOAD_READ_TASK_H
-#define _GUI_TASK_STREAMING_DLOAD_READ_TASK_H
+
+#pragma once
 
 #include <QThread>
 #include "task/task.h"
@@ -34,5 +34,3 @@ namespace OpenPST {
         };
     }
 }
-
-#endif // _GUI_TASK_STREAMING_DLOAD_READ_TASK_H
