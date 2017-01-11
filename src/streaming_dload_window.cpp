@@ -230,10 +230,7 @@ void StreamingDloadWindow::sendHello()
 	} catch (StreamingDloadSerialError& e) {
 		log(e.what());
 		return disconnectPort();
-	} catch(serial::SerialException& e) {
-		log(e.what());
-		return disconnectPort();
-	} catch (serial::IOException e) {
+	} catch(SerialError& e) {
 		log(e.what());
 		return disconnectPort();
 	}
@@ -277,7 +274,7 @@ void StreamingDloadWindow::setSecurityMode()
 	} catch (StreamingDloadSerialError& e) {
 		log(tmp.sprintf("Error setting security mode to %s - %s", (mode == 0x00 ? "Untrusted" : "Trusted"), e.what() ));
 		return;
-	} catch (serial::IOException e) {
+	} catch (SerialError& e) {
 		log(tmp.sprintf("Error setting security mode to %s - %s", (mode == 0x00 ? "Untrusted" : "Trusted"), e.what() ));
 		return;
 	}
@@ -308,7 +305,7 @@ void StreamingDloadWindow::sendUnlock()
 	} catch (StreamingDloadSerialError& e) {
 		log(e.what());
 		return;
-	} catch (serial::IOException e) {
+	} catch (SerialError& e) {
 		log(e.what());
 		return;
 	}
@@ -330,7 +327,7 @@ void StreamingDloadWindow::sendNop()
 	} catch (StreamingDloadSerialError& e) {
 		log(e.what());
 		return;
-	} catch (serial::IOException e) {
+	} catch (SerialError& e) {
 		log(e.what());
 		return;
 	}
@@ -356,7 +353,7 @@ void StreamingDloadWindow::sendReset()
 	} catch (StreamingDloadSerialError& e) {
 		log(e.what());
 		return;
-	} catch (serial::IOException e) {
+	} catch (SerialError& e) {
 		log(e.what());
 		return;
 	}
@@ -381,7 +378,7 @@ void StreamingDloadWindow::sendPowerDown()
 	} catch (StreamingDloadSerialError& e) {
 		log(e.what());
 		return;
-	} catch (serial::IOException e) {
+	} catch (SerialError& e) {
 		log(e.what());
 		return;
 	}
@@ -409,7 +406,7 @@ void StreamingDloadWindow::openMode()
 	} catch (StreamingDloadSerialError& e) {
 		log(e.what());
 		return;
-	} catch (serial::IOException e) {
+	} catch (SerialError& e) {
 		log(e.what());
 		return;
 	}
@@ -433,7 +430,7 @@ void StreamingDloadWindow::closeMode()
 	} catch (StreamingDloadSerialError& e) {
 		log(e.what());
 		return;
-	} catch (serial::IOException e) {
+	} catch (SerialError& e) {
 		log(e.what());
 		return;
 	}
