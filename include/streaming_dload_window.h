@@ -11,6 +11,8 @@
 
 #pragma once
 
+#include <iostream>
+#include <fstream>
 #include <QMainWindow>
 #include <QFileDialog>
 #include <QMessageBox>
@@ -22,8 +24,7 @@
 #include "task/streaming_dload_stream_write_task.h"
 #include "task/task_runner.h"
 #include "about_dialog.h"
-#include <iostream>
-#include <fstream>
+
 
 namespace Ui {
 	class StreamingDloadWindow;
@@ -41,13 +42,12 @@ namespace OpenPST{
 
             private:
                 Ui::StreamingDloadWindow *ui;
-                StreamingDloadSerial port;
-                serial::PortInfo currentPort;
                 TaskRunner taskRunner;
                 volatile bool taskShouldCancel = false;
+				StreamingDloadSerial port;
+                serial::PortInfo currentPort;
                 int taskCount = 0;
                 AboutDialog aboutDialog;
-
 			public:
 				explicit StreamingDloadWindow(QWidget *parent = 0);
 				~StreamingDloadWindow();

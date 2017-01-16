@@ -13,10 +13,11 @@
 
 using namespace OpenPST::GUI;
 
-StreamingDloadStreamWriteTask::StreamingDloadStreamWriteTask(uint32_t address, std::string writeFilePath, bool unframed, StreamingDloadSerial& port) :
+StreamingDloadStreamWriteTask::StreamingDloadStreamWriteTask(uint32_t address, std::string filePath, bool unframed, ProgressGroupWidget* progressContainer, StreamingDloadSerial& port) :
     address(address),
-    writeFilePath(writeFilePath),
+    filePath(filePath),
     unframed(unframed),
+    progressContainer(progressContainer),
     port(port)
 {
     
@@ -30,63 +31,91 @@ StreamingDloadStreamWriteTask::~StreamingDloadStreamWriteTask()
 
 void StreamingDloadStreamWriteTask::run()
 {
-    /*QString tmp;
+    QString message;
 
-    std::ifstream file(request.filePath.c_str(), std::ios::in | std::ios::binary);
+    emit started();
+
+    std::ifstream file(filePath.c_str(), std::ios::in | std::ios::binary);
 
     if (!file.is_open()) {
-        emit error(request, tmp.sprintf("Error opening %s for reading", request.filePath.c_str()));
+        emit error(message.sprintf("Error opening %s for reading", filePath.c_str()));
         return;
     }
 
+
     file.seekg(0, file.end);
 
-    size_t fileSize = file.tellg();
+    size_t total = file.tellg();
+    size_t step  = total;
+    size_t written = 0;
+    
+    if (port.state.negotiated && port.state.hello.maxPreferredBlockSize && step > port.state.hello.maxPreferredBlockSize) {
+        step = port.state.hello.maxPreferredBlockSize;
+    } else if (step > STREAMING_DLOAD_MAX_DATA_SIZE) {
+        step = STREAMING_DLOAD_MAX_DATA_SIZE;
+    }
+
+    QMetaObject::invokeMethod(progressContainer, "setProgress",  Qt::QueuedConnection, Q_ARG(int, 0), Q_ARG(int, total), Q_ARG(int, 0));
+    QMetaObject::invokeMethod(progressContainer, "setTextLeft",  Qt::QueuedConnection, Q_ARG(QString, message.sprintf("Writing %lu bytes at 0x%08X", total, address)));
+    QMetaObject::invokeMethod(progressContainer, "setTextRight", Qt::QueuedConnection, Q_ARG(QString, message.sprintf("0/%d bytes", total)));
+
+    char* fbuff = new char[step];
+
+    if (!fbuff) {
+        emit error(message.sprintf("Could not allocate %lu bytes for file read buffer", step));
+        return;
+    }
 
     file.seekg(0, file.beg);
-
-    size_t writeSize = port.state.hello.maxPreferredBlockSize;
-
-    request.outSize = 0;
-
-    uint8_t fileBuffer[STREAMING_DLOAD_MAX_TX_SIZE];
-
-    if (fileSize <= writeSize) {
-
-        file.read((char*)fileBuffer, fileSize);
-
-        if (port.streamWrite(request.address, fileBuffer, fileSize, request.unframed) != kStreamingDloadSuccess) {
-            file.close();
-            emit error(request, tmp.sprintf("Error writing %lu bytes starting at address 0x%04X", fileSize, request.address));
+    
+    while (written < total) {
+        if (cancelled()) {
+            emit aborted();
             return;
         }
 
-        emit chunkComplete(request);
-    } else {
+        if ((total - written) < step) {
+            step = total - written;
+        }
 
-        uint32_t address = request.address;
+        if (!file.read(fbuff, step)){
+            emit error(message.sprintf("Error reading file. Attempted to read %lu bytes but only read %lu bytes", step, file.gcount()));
+            delete[] fbuff;
+            file.close();
+            return;
+        }
 
-        do {
+        try {
+            written += port.writeFlash(address + written, reinterpret_cast<uint8_t*>(fbuff), step, unframed);
+            emit log(message.sprintf("Written %lu bytes so far", written));
+        } catch(StreamingDloadSerialError& e) {
+            delete[] fbuff;
+            file.close();
+            emit error(message.sprintf("Error writing %lu bytes at address 0x%08X: %s", step, (address + total), e.what()));
+            return;
+        } catch(SerialError& e) {
+            delete[] fbuff;
+            file.close();
+            emit error(message.sprintf("Error writing %lu bytes at address 0x%08X: %s", step, (address + total), e.what()));
+            return;
+        } catch (...) {
+            delete[] fbuff;
+            file.close();
+            emit error("Unexpected error encountered");
+            return;
+        }
 
-            file.read((char*)fileBuffer, writeSize);
+        QMetaObject::invokeMethod(progressContainer, "setProgress", Qt::QueuedConnection, Q_ARG(int, total));
+        QMetaObject::invokeMethod(progressContainer, "setTextRight", Qt::QueuedConnection, Q_ARG(QString, message.sprintf("%d/%d bytes", written, total)));
+        
+    }
 
-            if (port.streamWrite((address + request.outSize), fileBuffer, writeSize, request.unframed) != kStreamingDloadSuccess) {
-                file.close();
-                emit error(request, tmp.sprintf("Error writing %lu bytes starting at address 0x%04X", writeSize, (address + request.outSize)));
-                return;
-            }
-            
-            request.outSize += writeSize;
+    emit log(message.sprintf("Wrote %lu bytes at 0x%08X from %s", written, address, filePath.c_str()));
 
-            emit chunkComplete(request);
-
-        } while (request.outSize < fileSize && !cancelled);
-
-    }       
+    delete[] fbuff;
 
     file.close();
 
-    emit complete(request);
-    */
+    emit complete();
 }
 

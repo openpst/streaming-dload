@@ -13,10 +13,11 @@
 
 using namespace OpenPST::GUI;
 
-StreamingDloadReadTask::StreamingDloadReadTask(uint32_t address, size_t size, std::string outFilePath, StreamingDloadSerial& port) :
+StreamingDloadReadTask::StreamingDloadReadTask(uint32_t address, size_t amount, std::string outFilePath, ProgressGroupWidget* progressContainer, StreamingDloadSerial& port) :
     address(address),
-    size(size),
+    amount(amount),
     outFilePath(outFilePath),
+    progressContainer(progressContainer),
     port(port)
 {
 
@@ -29,53 +30,66 @@ StreamingDloadReadTask::~StreamingDloadReadTask()
 
 void StreamingDloadReadTask::run()
 {
-    /*QString tmp;
+    QString message;
+    size_t step  = amount;
+    size_t total = 0;
 
-    std::ofstream file(request.outFilePath.c_str(), std::ios::out | std::ios::binary | std::ios::trunc);
+    if (port.state.negotiated && port.state.hello.maxPreferredBlockSize && step > port.state.hello.maxPreferredBlockSize) {
+        step = port.state.hello.maxPreferredBlockSize;
+    } else if (step > STREAMING_DLOAD_MAX_DATA_SIZE) {
+        step = STREAMING_DLOAD_MAX_DATA_SIZE;
+    }
+
+    QMetaObject::invokeMethod(progressContainer, "setProgress",  Qt::QueuedConnection, Q_ARG(int, 0), Q_ARG(int, amount), Q_ARG(int, 0));
+    QMetaObject::invokeMethod(progressContainer, "setTextLeft",  Qt::QueuedConnection, Q_ARG(QString, message.sprintf("Reading %lu bytes from 0x%08X", amount, address)));
+    QMetaObject::invokeMethod(progressContainer, "setTextRight", Qt::QueuedConnection, Q_ARG(QString, message.sprintf("0/%d bytes", amount)));
+    
+    emit started();
+
+    std::ofstream file(outFilePath.c_str(), std::ios::out | std::ios::binary | std::ios::trunc);
     
     if (!file.is_open()) {
-        emit error(request, tmp.sprintf("Error opening %s for writing", request.outFilePath.c_str()));
+        emit error(message.sprintf("Error opening %s for writing", outFilePath.c_str()));
         return;
     }
 
-    if (request.stepSize > port.state.hello.maxPreferredBlockSize) {
-        request.stepSize = port.state.hello.maxPreferredBlockSize;
-    }
+    emit log(message.sprintf("Writing data to %s", outFilePath.c_str()));
 
-    request.outSize = 0;
-
-    if (request.size <= request.stepSize) {
-
-        if (port.readAddress(request.address, request.stepSize, file, request.outSize, request.stepSize) != kStreamingDloadSuccess) {
-            file.close();
-            emit error(request, tmp.sprintf("Error reading %lu bytes from address 0x%08X", request.stepSize, request.address));
+    while (total < amount) {
+        if (cancelled()) {
+            emit aborted();
             return;
         }
 
-        emit chunkReady(request);
-    } else {
+        if ((amount - total) < step) {
+            step = amount - total;
+        }
 
-        
-        uint32_t address = request.address;
+        try {
+            total += port.readFlash(address + total, step, file);
+        } catch(StreamingDloadSerialError& e) {
+            file.close();
+            emit error(message.sprintf("Error reading %lu bytes from address 0x%08X: %s", step, (address + total), e.what()));
+            return;
+        } catch(SerialError& e) {
+            file.close();
+            emit error(message.sprintf("Error reading %lu bytes from address 0x%08X: %s", step, (address + total), e.what()));
+            return;
+        } catch (...) {
+            file.close();
+            emit error("Unexpected error encountered");
+            return;
+        }
 
-        do {
-            size_t chunkOutSize = 0;
 
-            if (port.readAddress((address + request.outSize), request.stepSize, file, chunkOutSize, request.stepSize) != kStreamingDloadSuccess) {
-                file.close();
-                emit error(request, tmp.sprintf("Error reading %lu bytes from address 0x%08X", request.stepSize, (address + request.outSize)));
-                return;
-            }
-            
-            request.outSize += chunkOutSize;
+        QMetaObject::invokeMethod(progressContainer, "setProgress", Qt::QueuedConnection, Q_ARG(int, total));
+        QMetaObject::invokeMethod(progressContainer, "setTextRight", Qt::QueuedConnection, Q_ARG(QString, message.sprintf("%d/%d bytes", total, amount)));
+    }
 
-            emit chunkReady(request);
-
-        } while (request.outSize < request.size && !cancelled);
-
-    }       
+    emit log(message.sprintf("Read %lu bytes from 0x%08X. Contents saved to %s", amount, address, outFilePath.c_str()));
 
     file.close();
 
-    emit complete(request);*/
+    emit complete();
+
 }

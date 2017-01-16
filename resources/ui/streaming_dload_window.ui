@@ -555,9 +555,9 @@
       <widget class="QLineEdit" name="readSizeValue">
        <property name="geometry">
         <rect>
-         <x>270</x>
+         <x>360</x>
          <y>30</y>
-         <width>100</width>
+         <width>171</width>
          <height>27</height>
         </rect>
        </property>
@@ -576,7 +576,7 @@
         <rect>
          <x>80</x>
          <y>30</y>
-         <width>100</width>
+         <width>211</width>
          <height>27</height>
         </rect>
        </property>
@@ -593,7 +593,7 @@
       <widget class="QLabel" name="readSizeLabel">
        <property name="geometry">
         <rect>
-         <x>218</x>
+         <x>308</x>
          <y>30</y>
          <width>47</width>
          <height>27</height>
@@ -627,54 +627,6 @@
        <property name="text">
         <string>Address</string>
        </property>
-      </widget>
-      <widget class="QLabel" name="readStepSizeLabel">
-       <property name="geometry">
-        <rect>
-         <x>400</x>
-         <y>30</y>
-         <width>71</width>
-         <height>27</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <weight>50</weight>
-         <bold>false</bold>
-        </font>
-       </property>
-       <property name="text">
-        <string>Step Size</string>
-       </property>
-      </widget>
-      <widget class="QComboBox" name="readStepSizeValue">
-       <property name="geometry">
-        <rect>
-         <x>490</x>
-         <y>30</y>
-         <width>100</width>
-         <height>27</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <weight>50</weight>
-         <bold>false</bold>
-        </font>
-       </property>
-       <property name="editable">
-        <bool>true</bool>
-       </property>
-       <item>
-        <property name="text">
-         <string>1024</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>512</string>
-        </property>
-       </item>
       </widget>
      </widget>
      <widget class="QGroupBox" name="writeGroupBox">
@@ -1313,7 +1265,7 @@
      <x>0</x>
      <y>0</y>
      <width>881</width>
-     <height>21</height>
+     <height>19</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuQC_Tools">

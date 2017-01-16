@@ -3,7 +3,7 @@
 *
 * @file streaming_dload_read_task.h
 * @class StreamingDloadReadWorker
-* @package OpenPST
+* @package openpst/streaming-dload
 * @brief Handles background processing of open/open-multi mode reading
 *
 * @author Gassan Idriss <ghassani@gmail.com>
@@ -11,26 +11,28 @@
 
 #pragma once
 
-#include <QThread>
 #include "task/task.h"
 #include "qualcomm/streaming_dload_serial.h"
-#include "qualcomm/streaming_dload.h"
+#include "widget/progress_group_widget.h"
 
 using OpenPST::QC::StreamingDloadSerial;
+using OpenPST::QC::StreamingDloadSerialError;
+using OpenPST::Serial::SerialError;
 
 namespace OpenPST {
     namespace GUI {
         class StreamingDloadReadTask : public Task
         {
+            private:
+                uint32_t    address;
+                size_t      amount;
+                std::string outFilePath;
+                ProgressGroupWidget* progressContainer;
+                StreamingDloadSerial&  port;
             public:
-                StreamingDloadReadTask(uint32_t address, size_t size, std::string outFilePath, StreamingDloadSerial& port);
+                StreamingDloadReadTask(uint32_t address, size_t amount, std::string outFilePath, ProgressGroupWidget* progressContainer, StreamingDloadSerial& port);
                 ~StreamingDloadReadTask();
                 void run();
-            protected:
-                StreamingDloadSerial&  port;
-                uint32_t address;
-                size_t size;
-                std::string outFilePath; 
         };
     }
 }
