@@ -69,7 +69,7 @@
       <widget class="QPushButton" name="helloButton">
        <property name="geometry">
         <rect>
-         <x>750</x>
+         <x>730</x>
          <y>50</y>
          <width>71</width>
          <height>27</height>
@@ -85,29 +85,10 @@
         <string>Send</string>
        </property>
       </widget>
-      <widget class="QLineEdit" name="helloFeatureBitsValue">
-       <property name="geometry">
-        <rect>
-         <x>630</x>
-         <y>50</y>
-         <width>111</width>
-         <height>27</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <weight>50</weight>
-         <bold>false</bold>
-        </font>
-       </property>
-       <property name="text">
-        <string>0x00000011</string>
-       </property>
-      </widget>
       <widget class="QLineEdit" name="helloVersionValue">
        <property name="geometry">
         <rect>
-         <x>320</x>
+         <x>360</x>
          <y>50</y>
          <width>141</width>
          <height>27</height>
@@ -148,7 +129,7 @@
       <widget class="QLabel" name="helloVersionLabel">
        <property name="geometry">
         <rect>
-         <x>320</x>
+         <x>360</x>
          <y>30</y>
          <width>67</width>
          <height>17</height>
@@ -167,7 +148,7 @@
       <widget class="QLineEdit" name="helloCompatibleVersionValue">
        <property name="geometry">
         <rect>
-         <x>470</x>
+         <x>550</x>
          <y>50</y>
          <width>141</width>
          <height>27</height>
@@ -183,29 +164,10 @@
         <string>0x02</string>
        </property>
       </widget>
-      <widget class="QLabel" name="helloFeatureBitsLabel">
-       <property name="geometry">
-        <rect>
-         <x>630</x>
-         <y>30</y>
-         <width>91</width>
-         <height>17</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <weight>50</weight>
-         <bold>false</bold>
-        </font>
-       </property>
-       <property name="text">
-        <string>Feature Bits</string>
-       </property>
-      </widget>
       <widget class="QLabel" name="helloCompatibleVersionLabel">
        <property name="geometry">
         <rect>
-         <x>470</x>
+         <x>550</x>
          <y>30</y>
          <width>151</width>
          <height>17</height>
@@ -765,14 +727,20 @@
       <widget class="QCheckBox" name="unframedWriteCheckbox">
        <property name="geometry">
         <rect>
-         <x>680</x>
+         <x>600</x>
          <y>70</y>
-         <width>141</width>
-         <height>17</height>
+         <width>221</width>
+         <height>20</height>
         </rect>
        </property>
+       <property name="font">
+        <font>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
        <property name="text">
-        <string>Unframed</string>
+        <string>Unframed (Faster if supported)</string>
        </property>
       </widget>
      </widget>
@@ -1225,6 +1193,22 @@
      </property>
      <property name="text">
       <string>Device</string>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="autoHelloCheckbox">
+     <property name="geometry">
+      <rect>
+       <x>760</x>
+       <y>39</y>
+       <width>91</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Auto Hello</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
      </property>
     </widget>
    </widget>

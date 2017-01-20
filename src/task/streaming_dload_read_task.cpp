@@ -53,10 +53,11 @@ void StreamingDloadReadTask::run()
         return;
     }
 
-    emit log(message.sprintf("Writing data to %s", outFilePath.c_str()));
+    emit log(message.sprintf("Reading %lu bytes from %08X Writing data to %s", amount, address, outFilePath.c_str()));
 
     while (total < amount) {
         if (cancelled()) {
+            log("Aborted Read");
             emit aborted();
             return;
         }

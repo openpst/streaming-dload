@@ -42,17 +42,21 @@ void StreamingDloadStreamWriteTask::run()
         return;
     }
 
-
     file.seekg(0, file.end);
 
     size_t total = file.tellg();
     size_t step  = total;
     size_t written = 0;
     
-    if (port.state.negotiated && port.state.hello.maxPreferredBlockSize && step > port.state.hello.maxPreferredBlockSize) {
-        step = port.state.hello.maxPreferredBlockSize;
-    } else if (step > STREAMING_DLOAD_MAX_DATA_SIZE) {
-        step = STREAMING_DLOAD_MAX_DATA_SIZE;
+    if (unframed) {
+        step = STREAMING_DLOAD_MAX_DATA_SIZE * 20;
+        log("Writing in unframed mode");
+    } else {
+        if (port.state.negotiated && port.state.hello.maxPreferredBlockSize && step > port.state.hello.maxPreferredBlockSize) {
+            step = port.state.hello.maxPreferredBlockSize;
+        } else if (step > STREAMING_DLOAD_MAX_DATA_SIZE) {
+            step = STREAMING_DLOAD_MAX_DATA_SIZE;
+        }
     }
 
     QMetaObject::invokeMethod(progressContainer, "setProgress",  Qt::QueuedConnection, Q_ARG(int, 0), Q_ARG(int, total), Q_ARG(int, 0));
@@ -68,8 +72,11 @@ void StreamingDloadStreamWriteTask::run()
 
     file.seekg(0, file.beg);
     
+    emit log(message.sprintf("Writing %lu bytes at %08X from %s", total, address, filePath.c_str()));
+
     while (written < total) {
         if (cancelled()) {
+            log("Aborted Write");
             emit aborted();
             return;
         }
@@ -86,8 +93,11 @@ void StreamingDloadStreamWriteTask::run()
         }
 
         try {
-            written += port.writeFlash(address + written, reinterpret_cast<uint8_t*>(fbuff), step, unframed);
-            emit log(message.sprintf("Written %lu bytes so far", written));
+            if (unframed) {
+                written += port.writeFlashUnframed(address + written, reinterpret_cast<uint8_t*>(fbuff), step);
+            } else {
+                written += port.writeFlash(address + written, reinterpret_cast<uint8_t*>(fbuff), step);
+            }
         } catch(StreamingDloadSerialError& e) {
             delete[] fbuff;
             file.close();
@@ -105,7 +115,7 @@ void StreamingDloadStreamWriteTask::run()
             return;
         }
 
-        QMetaObject::invokeMethod(progressContainer, "setProgress", Qt::QueuedConnection, Q_ARG(int, total));
+        QMetaObject::invokeMethod(progressContainer, "setProgress", Qt::QueuedConnection, Q_ARG(int, written));
         QMetaObject::invokeMethod(progressContainer, "setTextRight", Qt::QueuedConnection, Q_ARG(QString, message.sprintf("%d/%d bytes", written, total)));
         
     }

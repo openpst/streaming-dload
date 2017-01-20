@@ -165,6 +165,10 @@ void StreamingDloadWindow::connectToPort()
 
 				ui->portDisconnectButton->setEnabled(true);
 
+				if (ui->autoHelloCheckbox->isChecked()) {
+					sendHello();
+				}			
+
 			} catch (SerialError e) {
 				log(tmp.sprintf("Error connecting to device on %s", device.port.c_str()));
 				log(e.getCode() == 13 ? "Permission Denied" : e.what());
@@ -206,9 +210,6 @@ void StreamingDloadWindow::sendHello()
 	} else if (!ui->helloCompatibleVersionValue->text().length()) {
 		log("Compatible version is required\n");
 		return;
-	} else if (!ui->helloFeatureBitsValue->text().length()) {
-		log("Feature bits are required\n");
-		return;
 	}
 	
 	QString tmp;
@@ -216,10 +217,9 @@ void StreamingDloadWindow::sendHello()
 	std::string magic = ui->helloMagicValue->text().toStdString().c_str();
 	uint8_t version = std::stoul(ui->helloVersionValue->text().toStdString().c_str(), nullptr, 16);
 	uint8_t compatibleVersion = std::stoul(ui->helloCompatibleVersionValue->text().toStdString().c_str(), nullptr, 16);
-	uint8_t featureBits = std::stoul(ui->helloFeatureBitsValue->text().toStdString().c_str(), nullptr, 16);
-	
+
 	try {
-		port.sendHello(magic, version, compatibleVersion, featureBits);
+		port.sendHello(magic, version, compatibleVersion, STREAMING_DLOAD_FEATURE_ALL);
 	} catch (StreamingDloadSerialError& e) {
 		log(e.what());
 		return disconnectPort();
@@ -540,6 +540,10 @@ void StreamingDloadWindow::read()
 		return;
 	}
 
+	if (taskRunner.isRunning()) {
+		log("Read task put in queue");
+	}
+
 	addTask(new StreamingDloadReadTask(address, size, fileName.toStdString(), ui->progressGroupBox, port));
 }
 
@@ -554,6 +558,7 @@ void StreamingDloadWindow::streamWrite()
 	}
 
 	uint32_t address = std::stoul(ui->writeAddressValue->text().toStdString().c_str(), nullptr, 16);
+	bool unframed = ui->unframedWriteCheckbox->isChecked();
 
 	QString tmp;
 	QString filePath = ui->writeFileValue->text();
@@ -563,7 +568,11 @@ void StreamingDloadWindow::streamWrite()
 		return;
 	}
 
-	addTask(new StreamingDloadStreamWriteTask(address, filePath.toStdString(), false, ui->progressGroupBox, port));
+	if (taskRunner.isRunning()) {
+		log("Write task put in queue");
+	}
+	
+	addTask(new StreamingDloadStreamWriteTask(address, filePath.toStdString(), unframed, ui->progressGroupBox, port));
 }
 
 /**
