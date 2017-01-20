@@ -9,7 +9,6 @@
 * @author Gassan Idriss <ghassani@gmail.com>
 */
 #include "streaming_dload_window.h"
-#include "task/test_task.h"
 
 using namespace OpenPST::GUI;
 
@@ -135,6 +134,7 @@ void StreamingDloadWindow::updatePortList()
 		ui->portList->addItem(tmp, device.port.c_str());
 	}
 }
+
 /**
 * @brief StreamingDloadWindow::connectToPort
 */
@@ -242,10 +242,30 @@ void StreamingDloadWindow::sendHello()
 	
 	// dump all sector sizes
 	for (int i = 0; i < port.state.hello.numberOfSectors; i++) {
-		log(tmp.sprintf("Sector %d: %d", i, port.state.hello.sectorSizes[i*4]));
+		log(tmp.sprintf("Sector %d: %lu", i+1, port.state.hello.sectorSizes[i]));
 	}
 
-	log(tmp.sprintf("Feature Bits: %04X", port.state.hello.featureBits));
+	log(tmp.sprintf("Feature Bits: %02X", port.state.hello.featureBits));
+
+	if (port.state.hello.featureBits & STREAMING_DLOAD_FEATURE_BIT_UNCOMPRESSED_DOWNLOAD) {
+		log("Device requires an uncompressed download");
+	}
+
+	if (port.state.hello.featureBits & STREAMING_DLOAD_FEATURE_BIT_NAND_BOOTABLE_IMAGE) {
+		log("Device features NAND Bootable Image");
+	}
+
+	if (port.state.hello.featureBits & STREAMING_DLOAD_FEATURE_BIT_NAND_BOOT_LOADER) {
+		log("Device features NAND Bootloader");
+	}
+
+	if (port.state.hello.featureBits & STREAMING_DLOAD_FEATURE_BIT_MULTI_IMAGE) {
+		log("Supports multi-image");
+	}
+
+	if (port.state.hello.featureBits & STREAMING_DLOAD_FEATURE_BIT_SECTOR_ADDRESSES) {
+		log("Device features sector addresses");
+	}
 }
 
 /**
@@ -682,12 +702,32 @@ void StreamingDloadWindow::addTask(Task* task)
 
 void StreamingDloadWindow::cancelCurrentTask()
 {
+	QMessageBox::StandardButton answer = QMessageBox::question(
+		this,
+		tr("Confirmation"),
+		tr("Are you sure you would like to cancel the current task?")
+	);
+
+	if (answer == QMessageBox::No) {
+		return;
+	}
+
 	taskShouldCancel = true;
 	taskRunner.waitForDone();
 }
 
 void StreamingDloadWindow::cancelAllTasks()
 {
+	QMessageBox::StandardButton answer = QMessageBox::question(
+		this,
+		tr("Confirmation"),
+		tr("Are you sure you would like to cancel all tasks?")
+	);
+
+	if (answer == QMessageBox::No) {
+		return;
+	}
+
 	taskRunner.clearQueue();
 	cancelCurrentTask();
 	taskCount = 0;
