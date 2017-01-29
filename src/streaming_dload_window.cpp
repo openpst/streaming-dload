@@ -17,7 +17,7 @@ using namespace OpenPST::GUI;
 StreamingDloadWindow::StreamingDloadWindow(QWidget *parent) :
 	QMainWindow(parent),
 	ui(new Ui::StreamingDloadWindow),
-	port("", 115200),
+	port("", 115200, 100),
 	taskRunner(&taskShouldCancel)
 {
 	ui->setupUi(this);
