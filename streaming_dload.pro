@@ -23,12 +23,14 @@ INCLUDEPATH +=  $$BASE_DIR/include \
 SOURCES += \
     $$BASE_DIR/src/streaming_dload_window.cpp \
     $$BASE_DIR/src/task/streaming_dload_read_task.cpp \
+    $$BASE_DIR/src/task/streaming_dload_read_gpt_task.cpp \
     $$BASE_DIR/src/task/streaming_dload_stream_write_task.cpp \
     $$BASE_DIR/src/main.cpp
 
 HEADERS  += \
     $$BASE_DIR/include/streaming_dload_window.h \
     $$BASE_DIR/include/task/streaming_dload_read_task.h \
+    $$BASE_DIR/include/task/streaming_dload_read_gpt_task.h \
     $$BASE_DIR/include/task/streaming_dload_stream_write_task.h
 
 FORMS  += $$BASE_DIR/resources/ui/streaming_dload_window.ui

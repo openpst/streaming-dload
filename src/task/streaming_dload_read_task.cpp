@@ -2,8 +2,8 @@
 * LICENSE PLACEHOLDER
 *
 * @file streaming_dload_read_task.cpp
-* @class StreamingDloadReadWorker
-* @package OpenPST
+* @class StreamingDloadReadTask
+* @package openpst/streaming-dload
 * @brief Handles background processing of open/open-multi mode reading
 *
 * @author Gassan Idriss <ghassani@gmail.com>

@@ -22,7 +22,9 @@
 #include "qualcomm/streaming_dload_serial.h"
 #include "task/streaming_dload_read_task.h"
 #include "task/streaming_dload_stream_write_task.h"
+#include "task/streaming_dload_read_gpt_task.h"
 #include "task/task_runner.h"
+#include "util/gpt_parser.h"
 #include "about_dialog.h"
 
 
@@ -39,6 +41,42 @@ namespace OpenPST{
 		{
 
             Q_OBJECT
+
+			enum GptEntiesColumns{
+				kGptEntiesColumnName = 0,
+				kGptEntiesColumnStartLBA,
+				kGptEntiesColumnEndLBA,
+				kGptEntiesColumnLbaSize,
+				kGptEntiesColumnTypeUUID,
+				kGptEntiesColumnPartitionUUID
+			};
+
+			enum GptHeaderRows{
+				kGptHeaderRowSignature = -1,
+				kGptHeaderRowRevision ,
+				kGptHeaderRowCRC,
+				kGptHeaderRowPrimaryLBA,
+				kGptHeaderRowAlternativeLBA,
+				kGptHeaderRowLastUsableLBA,
+				kGptHeaderRowUuid,
+				kGptHeaderRowEntryCount,
+				kGptHeaderRowEntrySize,
+				kGptHeaderRowEntriesCRC
+			};
+			enum GptMbrRows{
+				kGptMbrRowMbrSignature = -1,
+				kGptMbrRowBootIndicator,
+				kGptMbrRowStartHead,
+				kGptMbrRowStartSector,
+				kGptMbrRowStartTrack,
+				kGptMbrRowOsType,
+				kGptMbrRowEndHead,
+				kGptMbrRowEndSector,
+				kGptMbrRowEndTrack,
+				kGptMbrRowStartingLba,
+				kGptMbrRowLbaSize,
+				kGptMbrRowSignature
+			};
 
             private:
                 Ui::StreamingDloadWindow *ui;
@@ -155,16 +193,65 @@ namespace OpenPST{
 				*/
 				void browseForWriteFile();
             
+				/**
+				* @brief browseForGptFileAndParse
+				*/
+				void browseForGptFileAndParse();
+				
+				/**
+				* @brief readGptFromDeviceAndParse
+				*/
+				void readGptFromDevice();
+				
+				/**
+				* @brief parseReadGptFromDevice
+				*/
+				void parseReadGptFromDevice(QString tmpFilePath);
+				
+				/**
+				* @brief parseGpt
+				*/
+				void parseGpt(QString filePath);
 
+				/**
+				* @brief showAboutDialog
+				*/
                 void showAboutDialog();
-
+                				
+				/**
+				* @brief cancelCurrentTask
+				*/
                 void cancelCurrentTask();
-                void cancelAllTasks();
-                void onTaskStarted();
-                void onTaskComplete();
-                void onTaskAborted();
-                void onTaskError(QString msg);
-                void onTaskLog(QString msg);
+                				
+				/**
+				* @brief cancelAllTasks
+				*/
+				void cancelAllTasks();
+                				
+				/**
+				* @brief onTaskStarted
+				*/
+				void onTaskStarted();
+                				
+				/**
+				* @brief onTaskComplete
+				*/
+				void onTaskComplete();
+                				
+				/**
+				* @brief onTaskAborted
+				*/
+				void onTaskAborted();
+                				
+				/**
+				* @brief onTaskError
+				*/
+				void onTaskError(QString msg);
+                				
+				/**
+				* @brief onTaskLog
+				*/
+				void onTaskLog(QString msg);
 
             protected:
                 void closeEvent(QCloseEvent *event);

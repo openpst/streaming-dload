@@ -2,8 +2,8 @@
 * LICENSE PLACEHOLDER
 *
 * @file streaming_dload_stream_write_task.cpp
-* @class StreamingDloadStreamWriteWorker
-* @package OpenPST
+* @class StreamingDloadStreamWriteTask
+* @package openpst/streaming-dload
 * @brief Handles background processing of writing data to flash using streaming write 
 *
 * @author Gassan Idriss <ghassani@gmail.com>

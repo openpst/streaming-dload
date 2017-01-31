@@ -918,7 +918,7 @@
      <zorder>openMultiGroupBox</zorder>
      <zorder>eraseFlashButton</zorder>
     </widget>
-    <widget class="QWidget" name="tab">
+    <widget class="QWidget" name="partitionTab">
      <attribute name="title">
       <string>GPT/MBR</string>
      </attribute>
@@ -964,8 +964,8 @@
       <widget class="QCheckBox" name="writeParitionTableOverrideExistingCheckbox">
        <property name="geometry">
         <rect>
-         <x>220</x>
-         <y>10</y>
+         <x>620</x>
+         <y>40</y>
          <width>161</width>
          <height>31</height>
         </rect>
@@ -1041,22 +1041,12 @@
        </property>
       </widget>
      </widget>
-     <widget class="QTableWidget" name="tableWidget">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>51</y>
-        <width>831</width>
-        <height>151</height>
-       </rect>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="writePartitionTableButton_2">
+     <widget class="QPushButton" name="readGptFromDeviceButton">
       <property name="geometry">
        <rect>
         <x>10</x>
         <y>10</y>
-        <width>251</width>
+        <width>171</width>
         <height>27</height>
        </rect>
       </property>
@@ -1068,15 +1058,15 @@
        </font>
       </property>
       <property name="text">
-       <string>Read GPT Partition Table</string>
+       <string>Read GPT from Device</string>
       </property>
      </widget>
-     <widget class="QPushButton" name="writePartitionTableButton_3">
+     <widget class="QPushButton" name="readGptFromFileButton">
       <property name="geometry">
        <rect>
-        <x>270</x>
+        <x>190</x>
         <y>10</y>
-        <width>251</width>
+        <width>171</width>
         <height>27</height>
        </rect>
       </property>
@@ -1088,8 +1078,249 @@
        </font>
       </property>
       <property name="text">
-       <string>Validate GPT Partition Table</string>
+       <string>Read GPT from File</string>
       </property>
+     </widget>
+     <widget class="QTabWidget" name="gptTabGroup">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>50</y>
+        <width>821</width>
+        <height>161</height>
+       </rect>
+      </property>
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
+      <widget class="QWidget" name="gptTabMbr">
+       <attribute name="title">
+        <string>MBR</string>
+       </attribute>
+       <widget class="QTableWidget" name="gptMbrInfoTable">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>821</width>
+          <height>131</height>
+         </rect>
+        </property>
+        <property name="verticalScrollBarPolicy">
+         <enum>Qt::ScrollBarAsNeeded</enum>
+        </property>
+        <property name="sizeAdjustPolicy">
+         <enum>QAbstractScrollArea::AdjustIgnored</enum>
+        </property>
+        <property name="gridStyle">
+         <enum>Qt::NoPen</enum>
+        </property>
+        <attribute name="horizontalHeaderStretchLastSection">
+         <bool>true</bool>
+        </attribute>
+        <attribute name="verticalHeaderStretchLastSection">
+         <bool>false</bool>
+        </attribute>
+        <row>
+         <property name="text">
+          <string>MBR Signature</string>
+         </property>
+        </row>
+        <row>
+         <property name="text">
+          <string>Boot Indicator</string>
+         </property>
+        </row>
+        <row>
+         <property name="text">
+          <string>Start Head</string>
+         </property>
+        </row>
+        <row>
+         <property name="text">
+          <string>Start Sector</string>
+         </property>
+        </row>
+        <row>
+         <property name="text">
+          <string>Start Track</string>
+         </property>
+        </row>
+        <row>
+         <property name="text">
+          <string>OS Type</string>
+         </property>
+        </row>
+        <row>
+         <property name="text">
+          <string>End Head</string>
+         </property>
+        </row>
+        <row>
+         <property name="text">
+          <string>End Sector</string>
+         </property>
+        </row>
+        <row>
+         <property name="text">
+          <string>End Track</string>
+         </property>
+        </row>
+        <row>
+         <property name="text">
+          <string>Starting LBA</string>
+         </property>
+        </row>
+        <row>
+         <property name="text">
+          <string>LBA Size</string>
+         </property>
+        </row>
+        <row>
+         <property name="text">
+          <string>Signature</string>
+         </property>
+        </row>
+        <column>
+         <property name="text">
+          <string>Value</string>
+         </property>
+        </column>
+       </widget>
+      </widget>
+      <widget class="QWidget" name="gptTabHeader">
+       <attribute name="title">
+        <string>GPT Header</string>
+       </attribute>
+       <widget class="QTableWidget" name="gptHeaderInfoTable">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>821</width>
+          <height>131</height>
+         </rect>
+        </property>
+        <property name="verticalScrollBarPolicy">
+         <enum>Qt::ScrollBarAsNeeded</enum>
+        </property>
+        <property name="sizeAdjustPolicy">
+         <enum>QAbstractScrollArea::AdjustIgnored</enum>
+        </property>
+        <property name="gridStyle">
+         <enum>Qt::NoPen</enum>
+        </property>
+        <attribute name="horizontalHeaderStretchLastSection">
+         <bool>true</bool>
+        </attribute>
+        <row>
+         <property name="text">
+          <string>Signature</string>
+         </property>
+        </row>
+        <row>
+         <property name="text">
+          <string>Revision</string>
+         </property>
+        </row>
+        <row>
+         <property name="text">
+          <string>CRC</string>
+         </property>
+        </row>
+        <row>
+         <property name="text">
+          <string>Primary LBA</string>
+         </property>
+        </row>
+        <row>
+         <property name="text">
+          <string>Alternative LBA</string>
+         </property>
+        </row>
+        <row>
+         <property name="text">
+          <string>Last Usable LBA</string>
+         </property>
+        </row>
+        <row>
+         <property name="text">
+          <string>UUID</string>
+         </property>
+        </row>
+        <row>
+         <property name="text">
+          <string>Entry Count</string>
+         </property>
+        </row>
+        <row>
+         <property name="text">
+          <string>Entry Size</string>
+         </property>
+        </row>
+        <row>
+         <property name="text">
+          <string>Entries CRC</string>
+         </property>
+        </row>
+        <column>
+         <property name="text">
+          <string>Value</string>
+         </property>
+        </column>
+       </widget>
+      </widget>
+      <widget class="QWidget" name="gptTabPartitionEntries">
+       <attribute name="title">
+        <string>GPT Partition Entries</string>
+       </attribute>
+       <widget class="QTableWidget" name="gptEntriesInfoTable">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>821</width>
+          <height>131</height>
+         </rect>
+        </property>
+        <attribute name="horizontalHeaderStretchLastSection">
+         <bool>true</bool>
+        </attribute>
+        <attribute name="verticalHeaderStretchLastSection">
+         <bool>true</bool>
+        </attribute>
+        <column>
+         <property name="text">
+          <string>Name</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Start LBA</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>End LBA</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>LBA Size</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Type UUID</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Partition UUID</string>
+         </property>
+        </column>
+       </widget>
+      </widget>
      </widget>
     </widget>
    </widget>
@@ -1252,19 +1483,12 @@
      <height>19</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menuQC_Tools">
-    <property name="title">
-     <string>File</string>
-    </property>
-    <addaction name="actionClose"/>
-   </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
      <string>Help</string>
     </property>
     <addaction name="actionAbout"/>
    </widget>
-   <addaction name="menuQC_Tools"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">

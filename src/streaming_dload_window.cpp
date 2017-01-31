@@ -11,6 +11,7 @@
 #include "streaming_dload_window.h"
 
 using namespace OpenPST::GUI;
+using OpenPST::GptParser;
 
 #define log(m) ui->logWidget->log(m); 
 
@@ -80,9 +81,7 @@ StreamingDloadWindow::StreamingDloadWindow(QWidget *parent) :
 	QObject::connect(ui->eccReadButton, SIGNAL(clicked()), this, SLOT(readEccState()));
 	QObject::connect(ui->eccSetButton, SIGNAL(clicked()), this, SLOT(setEccState()));
 	QObject::connect(ui->openModeButton, SIGNAL(clicked()), this, SLOT(openMode()));
-	
 	QObject::connect(ui->openMultiButton, SIGNAL(clicked()), this, SLOT(openMultiMode()));
-
 	QObject::connect(ui->closeModeButton, SIGNAL(clicked()), this, SLOT(closeMode()));
 	QObject::connect(ui->openMultiCloseButton, SIGNAL(clicked()), this, SLOT(closeMode()));
 	QObject::connect(ui->readButton, SIGNAL(clicked()), this, SLOT(read()));
@@ -91,7 +90,8 @@ StreamingDloadWindow::StreamingDloadWindow(QWidget *parent) :
 	QObject::connect(ui->writeFileBrowseButton, SIGNAL(clicked()), this, SLOT(browseForWriteFile()));
 	QObject::connect(ui->streamWriteButton, SIGNAL(clicked()), this, SLOT(streamWrite()));
 	QObject::connect(ui->actionAbout, SIGNAL(triggered()), this, SLOT(showAboutDialog()));
-
+	QObject::connect(ui->readGptFromFileButton, SIGNAL(clicked()), this, SLOT(browseForGptFileAndParse()));
+	QObject::connect(ui->readGptFromDeviceButton, SIGNAL(clicked()), this, SLOT(readGptFromDevice()));
 	QObject::connect(ui->progressGroupBox->cancelButton, SIGNAL(clicked()), this, SLOT(cancelCurrentTask()));
 	QObject::connect(ui->progressGroupBox->cancelAllButton, SIGNAL(clicked()), this, SLOT(cancelAllTasks()));
 
@@ -671,29 +671,103 @@ void StreamingDloadWindow::browseForWriteFile()
 }
 
 /**
-* @brief StreamingDloadWindow::disableControls
-
-void StreamingDloadWindow::disableControls()
-{
-	ui->tabSet->setEnabled(false);
-	ui->deviceContainer->setEnabled(false);
-	ui->cancelOperationButton->setEnabled(true);
-}
+* @brief StreamingDloadWindow::browseForGptFileAndParse
 */
-/**
-* @brief StreamingDloadWindow::enableControls
-
-void StreamingDloadWindow::enableControls()
+void StreamingDloadWindow::browseForGptFileAndParse()
 {
-	ui->tabSet->setEnabled(true);
-	ui->deviceContainer->setEnabled(true);
-	ui->progressBarTextLabel2->setText("");
-	ui->progressBarTextLabel->setText("");
-	ui->progressBar->setValue(0);
-	ui->cancelOperationButton->setEnabled(false);
+	QString fileName = QFileDialog::getOpenFileName(this, "Browse For File", "", "*.*");
+	
+	if (fileName.length()) {
+		parseGpt(fileName);
+	}
 }
-*/
 
+void StreamingDloadWindow::parseGpt(QString filePath)
+{
+	GptParser parser;
+	GptInfo gpt = {};
+	QString tmp;
+
+	int flags = kGptParserFlagAll;
+
+	if (!filePath.length()) {
+		return;
+	}
+
+	try {
+		gpt = parser.parse(filePath.toStdString(), flags);
+	} catch (std::out_of_range& e) {
+		log(e.what());
+		return;
+	} catch(std::invalid_argument& e) {
+		log(e.what());
+		return;
+	} catch (...) {
+		log("Unexpected error encountered");
+		return;
+	}
+	
+	ui->gptMbrInfoTable->setItem(kGptMbrRowMbrSignature, 1, new QTableWidgetItem(tmp.sprintf("0x%08X", gpt.mbr.mbrSignature)));
+	ui->gptMbrInfoTable->setItem(kGptMbrRowBootIndicator, 1, new QTableWidgetItem(tmp.sprintf("0x%02X", gpt.mbr.partition[0].bootIndicator)));
+	ui->gptMbrInfoTable->setItem(kGptMbrRowStartHead, 1, new QTableWidgetItem(tmp.sprintf("0x%02X", gpt.mbr.partition[0].startHead)));
+	ui->gptMbrInfoTable->setItem(kGptMbrRowStartSector, 1, new QTableWidgetItem(tmp.sprintf("0x%02X", gpt.mbr.partition[0].startSector)));
+	ui->gptMbrInfoTable->setItem(kGptMbrRowStartTrack, 1, new QTableWidgetItem(tmp.sprintf("0x%02X", gpt.mbr.partition[0].startTrack)));
+	ui->gptMbrInfoTable->setItem(kGptMbrRowOsType, 1, new QTableWidgetItem(tmp.sprintf("0x%02X", gpt.mbr.partition[0].osType)));
+	ui->gptMbrInfoTable->setItem(kGptMbrRowEndHead, 1, new QTableWidgetItem(tmp.sprintf("0x%02X", gpt.mbr.partition[0].endHead)));
+	ui->gptMbrInfoTable->setItem(kGptMbrRowEndSector, 1, new QTableWidgetItem(tmp.sprintf("0x%02X", gpt.mbr.partition[0].endSector)));
+	ui->gptMbrInfoTable->setItem(kGptMbrRowEndTrack, 1, new QTableWidgetItem(tmp.sprintf("0x%02X", gpt.mbr.partition[0].endTrack)));
+	ui->gptMbrInfoTable->setItem(kGptMbrRowStartingLba, 1, new QTableWidgetItem(tmp.sprintf("0x%08X", gpt.mbr.partition[0].startingLba)));
+	ui->gptMbrInfoTable->setItem(kGptMbrRowLbaSize, 1, new QTableWidgetItem(tmp.sprintf("%lu", gpt.mbr.partition[0].lbaSize)));
+	ui->gptMbrInfoTable->setItem(kGptMbrRowSignature, 1, new QTableWidgetItem(tmp.sprintf("0x%04X", gpt.mbr.signature)));
+
+	ui->gptHeaderInfoTable->setItem(kGptHeaderRowSignature, 1, new QTableWidgetItem(tmp.sprintf("%s", &gpt.header.signature[0])));
+	ui->gptHeaderInfoTable->setItem(kGptHeaderRowRevision, 1, new QTableWidgetItem(tmp.sprintf("0x%08X", gpt.header.revision)));
+	ui->gptHeaderInfoTable->setItem(kGptHeaderRowCRC, 1, new QTableWidgetItem(tmp.sprintf("0x%08X", gpt.header.headerCrc32)));
+	ui->gptHeaderInfoTable->setItem(kGptHeaderRowPrimaryLBA, 1, new QTableWidgetItem(tmp.sprintf("0x%08X", gpt.header.myLba)));
+	ui->gptHeaderInfoTable->setItem(kGptHeaderRowAlternativeLBA, 1, new QTableWidgetItem(tmp.sprintf("0x%08X", gpt.header.alternateLba)));
+	ui->gptHeaderInfoTable->setItem(kGptHeaderRowLastUsableLBA, 1, new QTableWidgetItem(tmp.sprintf("0x%08X", gpt.header.lastUsableLba)));
+	ui->gptHeaderInfoTable->setItem(kGptHeaderRowUuid, 1, new QTableWidgetItem(tmp.sprintf("%s", parser.getUUID(&gpt.header.guid).c_str())));
+	ui->gptHeaderInfoTable->setItem(kGptHeaderRowEntryCount, 1, new QTableWidgetItem(tmp.sprintf("%d", gpt.header.numPartitionEntries)));	
+	ui->gptHeaderInfoTable->setItem(kGptHeaderRowEntrySize, 1, new QTableWidgetItem(tmp.sprintf("%lu", gpt.header.sizeofPartitionEntry)));
+	ui->gptHeaderInfoTable->setItem(kGptHeaderRowEntriesCRC, 1, new QTableWidgetItem(tmp.sprintf("0x%08X", gpt.header.partitionEntryArrayCrc32)));
+
+	if (gpt.entries.size()) {
+		ui->gptEntriesInfoTable->setRowCount(gpt.entries.size());
+		int i = 0;
+		for (auto &entry : gpt.entries) {
+			ui->gptEntriesInfoTable->setItem(i, kGptEntiesColumnName, new QTableWidgetItem(tmp.sprintf("%s", parser.getEntryName(&entry).c_str())));
+			ui->gptEntriesInfoTable->setItem(i, kGptEntiesColumnStartLBA, new QTableWidgetItem(tmp.sprintf("0x%08X", entry.startingLba)));
+			ui->gptEntriesInfoTable->setItem(i, kGptEntiesColumnEndLBA, new QTableWidgetItem(tmp.sprintf("0x%08X", entry.endingLba)));
+			ui->gptEntriesInfoTable->setItem(i, kGptEntiesColumnLbaSize, new QTableWidgetItem(tmp.sprintf("%d", (entry.endingLba - entry.startingLba))));
+			ui->gptEntriesInfoTable->setItem(i, kGptEntiesColumnTypeUUID, new QTableWidgetItem(tmp.sprintf("%s", parser.getUUID(&entry.typeUuid).c_str())));
+			ui->gptEntriesInfoTable->setItem(i, kGptEntiesColumnPartitionUUID, new QTableWidgetItem(tmp.sprintf("%s", parser.getUUID(&entry.partitionUuid).c_str())));
+			i++;
+		}
+
+	} else {
+		log("No Entries To Parse");
+	}
+}
+
+void StreamingDloadWindow::readGptFromDevice()
+{
+	QString savePath = QFileDialog::getSaveFileName(this, tr("Save GPT data to file"), "", tr("Any Files (*.*)"));
+
+	if (!savePath.length()) {
+		log("Aborted read GPT from device");
+		return;
+	}
+
+	StreamingDloadReadGptTask* task = new StreamingDloadReadGptTask(savePath, ui->progressGroupBox, port);
+
+	connect(task, &StreamingDloadReadGptTask::received, this, &StreamingDloadWindow::parseReadGptFromDevice);
+	
+	addTask(task);
+}
+
+void StreamingDloadWindow::parseReadGptFromDevice(QString filePath) {
+	parseGpt(filePath);
+}
 
 void StreamingDloadWindow::addTask(Task* task)
 {
