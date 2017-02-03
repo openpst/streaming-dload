@@ -18,7 +18,7 @@ using OpenPST::GptParser;
 StreamingDloadWindow::StreamingDloadWindow(QWidget *parent) :
 	QMainWindow(parent),
 	ui(new Ui::StreamingDloadWindow),
-	port("", 115200, 100),
+	port("", 115200, 500),
 	taskRunner(&taskShouldCancel)
 {
 	ui->setupUi(this);
