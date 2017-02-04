@@ -94,6 +94,13 @@ StreamingDloadWindow::StreamingDloadWindow(QWidget *parent) :
 	QObject::connect(ui->readGptFromDeviceButton, SIGNAL(clicked()), this, SLOT(readGptFromDevice()));
 	QObject::connect(ui->progressGroupBox->cancelButton, SIGNAL(clicked()), this, SLOT(cancelCurrentTask()));
 	QObject::connect(ui->progressGroupBox->cancelAllButton, SIGNAL(clicked()), this, SLOT(cancelAllTasks()));
+	QObject::connect(ui->rawProgramXmlCheckButton, SIGNAL(clicked()), this, SLOT(checkRawProgramXml()));
+	QObject::connect(ui->rawProgramXmlWriteButton, SIGNAL(clicked()), this, SLOT(runRawProgramXml()));
+	QObject::connect(ui->rawProgramXmlFileBrowseButton, SIGNAL(clicked()), this, SLOT(browseForRawProgramXml()));
+
+
+
+
 
 	updatePortList();
 }
@@ -905,4 +912,138 @@ void StreamingDloadWindow::closeEvent(QCloseEvent *event)
 	}
 
 	event->accept();
+}
+
+void StreamingDloadWindow::browseForRawProgramXml()
+{
+	QString fileName = QFileDialog::getOpenFileName(this, "Select rawprogram0.xml", "", "XML Files (*.xml)");
+
+	if (fileName.length()) {
+		ui->rawProgramXmlFileValue->setText(fileName);
+	}
+}
+
+void StreamingDloadWindow::parseRawXml(const QString& filePath)
+{
+	QString tmp;
+	RawProgramXmlReader reader;
+	std::vector<RawProgramXmlEntry> entries;
+
+	rawProgramEntries.clear();
+
+	int numberOfSectors = 128;
+	if (port.state.negotiated && port.state.hello.numberOfSectors){
+		log(tmp.sprintf("Hello negotiation says there are %d sectors.", port.state.hello.numberOfSectors));
+		numberOfSectors = port.state.hello.numberOfSectors;
+	} else {
+		log(tmp.sprintf("Hello has not been established. Parsing with assumed %d sectors.", numberOfSectors));
+	}
+
+	try {
+		entries = reader.parse(filePath.toStdString(), numberOfSectors);
+	} catch(std::invalid_argument& e) {
+		log(tmp.sprintf("Error parsing XML: %s", e.what()));
+		return;
+	} catch (...) {
+		log("error parsing XML: Unhandled exception");
+	}
+
+	if (!entries.size()) {
+		log("No entries found referenced in xml document");
+		return;
+	}
+
+	log(tmp.sprintf("Found %lu entries referenced in xml document", entries.size()));
+
+	QFileInfo xmlFileInfo(filePath);
+	QDir xmlFileDir 	= xmlFileInfo.dir();
+	QDir applicationDir = QDir::current();
+
+	log("Searching the following directories for relative images:");
+	log("\t- Specified absolute path to image");
+	log("\t- " + xmlFileDir.path());
+	log("\t- " + applicationDir.path());
+
+	for (auto &entry : entries) {
+		ResolvedRawProgramXmlEntry e;
+
+		e.entry 	 = entry;
+		e.sourceFile = filePath;
+		
+		QFileInfo absoluteInfo(entry.fileName.c_str());
+	
+		if (absoluteInfo.exists()) {
+			e.path = absoluteInfo.path();
+		} else if (xmlFileDir.exists(entry.fileName.c_str())) {
+			e.path = xmlFileDir.filePath(entry.fileName.c_str());
+		} else if(applicationDir.exists(entry.fileName.c_str())) {
+			e.path = applicationDir.filePath(entry.fileName.c_str());
+		} else {
+			e.path = "";
+		}
+
+		rawProgramEntries.push_back(e);
+	}
+
+	TableDialog dialog;
+
+	dialog.setTitle("Raw Program XML Overview for " + filePath);
+	dialog.setWindowTitle(tr("Raw Program XML Overview"));
+
+	QTableWidget* table = dialog.getTableWidget();
+
+	table->setColumnCount(12);
+	table->setHorizontalHeaderItem(0,  new QTableWidgetItem(tr("Label")));
+	table->setHorizontalHeaderItem(1,  new QTableWidgetItem(tr("File Name")));
+	table->setHorizontalHeaderItem(2,  new QTableWidgetItem(tr("Resolved Path")));
+	table->setHorizontalHeaderItem(3,  new QTableWidgetItem(tr("Sector Size")));
+	table->setHorizontalHeaderItem(4,  new QTableWidgetItem(tr("File Sector Offset")));
+	table->setHorizontalHeaderItem(5,  new QTableWidgetItem(tr("# Partition Sectors")));
+	table->setHorizontalHeaderItem(6,  new QTableWidgetItem(tr("Part of Single Image")));
+	table->setHorizontalHeaderItem(7,  new QTableWidgetItem(tr("Read Back Verify")));
+	table->setHorizontalHeaderItem(8,  new QTableWidgetItem(tr("Sparse")));
+	table->setHorizontalHeaderItem(9,  new QTableWidgetItem(tr("Start Byte")));
+	table->setHorizontalHeaderItem(10, new QTableWidgetItem(tr("Start Sector")));
+	table->setHorizontalHeaderItem(11, new QTableWidgetItem(tr("Size")));
+
+	table->setRowCount(rawProgramEntries.size());
+
+	int row = 0;
+	for (auto &entry : rawProgramEntries) {
+		table->setItem(row, 0, new QTableWidgetItem(tmp.sprintf("%s", entry.entry.label.c_str())));
+		table->setItem(row, 1, new QTableWidgetItem(tmp.sprintf("%s", entry.entry.fileName.c_str())));
+		if (entry.path.length()) {
+			table->setItem(row, 2, new QTableWidgetItem(entry.path));
+		} else {
+			table->setItem(row, 2, new QTableWidgetItem(tr("Not Found")));
+		}
+		
+		row++;
+	}
+
+	dialog.exec();
+}
+
+void StreamingDloadWindow::checkRawProgramXml()
+{
+	QString tmp;
+
+	if (!ui->rawProgramXmlFileValue->text().length()) {
+		log("Enter or browse for a valid rawprogram0.xml file");
+		return;
+	}
+
+	parseRawXml(ui->rawProgramXmlFileValue->text());
+
+	if (!rawProgramEntries.size()) {
+		return;
+	}
+
+}
+
+void StreamingDloadWindow::runRawProgramXml()
+{
+	
+
+
 }

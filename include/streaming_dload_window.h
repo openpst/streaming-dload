@@ -17,15 +17,18 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QCloseEvent>
+#include <vector>
 #include "ui_streaming_dload_window.h"
 #include "qualcomm/streaming_dload.h"
 #include "qualcomm/streaming_dload_serial.h"
+#include "qualcomm/raw_program_xml_reader.h"
 #include "task/streaming_dload_read_task.h"
 #include "task/streaming_dload_stream_write_task.h"
 #include "task/streaming_dload_read_gpt_task.h"
 #include "task/task_runner.h"
 #include "util/gpt_parser.h"
 #include "about_dialog.h"
+#include "table_dialog.h"
 
 
 namespace Ui {
@@ -33,10 +36,19 @@ namespace Ui {
 }
 
 using OpenPST::QC::StreamingDloadSerialError;
+using OpenPST::QC::RawProgramXmlReader;
+using OpenPST::QC::RawProgramXmlEntry;
 using OpenPST::Serial::SerialError;
 
 namespace OpenPST{
 	namespace GUI {
+
+		struct ResolvedRawProgramXmlEntry {
+			RawProgramXmlEntry entry;
+			QString sourceFile;
+			QString path;
+		};
+
 		class StreamingDloadWindow : public QMainWindow
 		{
 
@@ -86,6 +98,7 @@ namespace OpenPST{
                 serial::PortInfo currentPort;
                 int taskCount = 0;
                 AboutDialog aboutDialog;
+                std::vector<ResolvedRawProgramXmlEntry> rawProgramEntries;
 			public:
 				explicit StreamingDloadWindow(QWidget *parent = 0);
 				~StreamingDloadWindow();
@@ -253,10 +266,37 @@ namespace OpenPST{
 				*/
 				void onTaskLog(QString msg);
 
+				/**
+				* @brief browseForRawProgramXml	
+				*/
+				void browseForRawProgramXml();
+
+				/**
+				* @brief checkRawProgramXml	
+				*/
+				void checkRawProgramXml();
+
+				/**
+				* @brief checkRawProgramXml	
+				*/
+				void runRawProgramXml();
+
             protected:
+				/**
+				* @brief onTaskLog
+				*/
+
                 void closeEvent(QCloseEvent *event);
+				/**
+				* @brief onTaskLog
+				*/
+
                 void addTask(Task* task);
 
+				/**
+				* @brief parseRawXml
+				*/
+				void parseRawXml(const QString& filePath);
 			};
 	}
 }
