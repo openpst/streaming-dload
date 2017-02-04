@@ -29,7 +29,7 @@
       <x>10</x>
       <y>70</y>
       <width>861</width>
-      <height>351</height>
+      <height>371</height>
      </rect>
     </property>
     <property name="font">
@@ -480,7 +480,7 @@
        <rect>
         <x>10</x>
         <y>100</y>
-        <width>841</width>
+        <width>651</width>
         <height>71</height>
        </rect>
       </property>
@@ -498,7 +498,7 @@
       <widget class="QPushButton" name="readButton">
        <property name="geometry">
         <rect>
-         <x>730</x>
+         <x>550</x>
          <y>30</y>
          <width>91</width>
          <height>27</height>
@@ -596,8 +596,8 @@
        <rect>
         <x>10</x>
         <y>180</y>
-        <width>841</width>
-        <height>101</height>
+        <width>410</width>
+        <height>151</height>
        </rect>
       </property>
       <property name="font">
@@ -615,7 +615,7 @@
         <rect>
          <x>80</x>
          <y>30</y>
-         <width>311</width>
+         <width>291</width>
          <height>27</height>
         </rect>
        </property>
@@ -651,9 +651,9 @@
       <widget class="QPushButton" name="streamWriteButton">
        <property name="geometry">
         <rect>
-         <x>670</x>
-         <y>30</y>
-         <width>161</width>
+         <x>270</x>
+         <y>110</y>
+         <width>121</width>
          <height>27</height>
         </rect>
        </property>
@@ -670,8 +670,8 @@
       <widget class="QLineEdit" name="writeAddressValue">
        <property name="geometry">
         <rect>
-         <x>510</x>
-         <y>30</y>
+         <x>80</x>
+         <y>70</y>
          <width>131</width>
          <height>27</height>
         </rect>
@@ -689,8 +689,8 @@
       <widget class="QLabel" name="writeAddressLabel">
        <property name="geometry">
         <rect>
-         <x>440</x>
-         <y>30</y>
+         <x>10</x>
+         <y>70</y>
          <width>71</width>
          <height>27</height>
         </rect>
@@ -708,7 +708,7 @@
       <widget class="QToolButton" name="writeFileBrowseButton">
        <property name="geometry">
         <rect>
-         <x>400</x>
+         <x>370</x>
          <y>30</y>
          <width>27</width>
          <height>27</height>
@@ -727,8 +727,8 @@
       <widget class="QCheckBox" name="unframedWriteCheckbox">
        <property name="geometry">
         <rect>
-         <x>600</x>
-         <y>70</y>
+         <x>10</x>
+         <y>110</y>
          <width>221</width>
          <height>20</height>
         </rect>
@@ -743,6 +743,15 @@
         <string>Unframed (Faster if supported)</string>
        </property>
       </widget>
+      <zorder>writeFileValue</zorder>
+      <zorder>writeFileLabel</zorder>
+      <zorder>streamWriteButton</zorder>
+      <zorder>writeAddressValue</zorder>
+      <zorder>writeAddressLabel</zorder>
+      <zorder>writeFileBrowseButton</zorder>
+      <zorder>unframedWriteCheckbox</zorder>
+      <zorder>rawProgramXmlGroupBox</zorder>
+      <zorder>rawProgramXmlGroupBox</zorder>
      </widget>
      <widget class="QGroupBox" name="openModeGroupBox">
       <property name="geometry">
@@ -899,9 +908,9 @@
      <widget class="QPushButton" name="eraseFlashButton">
       <property name="geometry">
        <rect>
-        <x>10</x>
-        <y>290</y>
-        <width>201</width>
+        <x>670</x>
+        <y>120</y>
+        <width>171</width>
         <height>27</height>
        </rect>
       </property>
@@ -912,11 +921,127 @@
        <string>Erase Flash !DANGER!</string>
       </property>
      </widget>
+     <widget class="QGroupBox" name="rawProgramXmlGroupBox">
+      <property name="geometry">
+       <rect>
+        <x>430</x>
+        <y>180</y>
+        <width>410</width>
+        <height>151</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="title">
+       <string>Run Raw Program XML</string>
+      </property>
+      <widget class="QToolButton" name="rawProgramXmlFileBrowseButton">
+       <property name="geometry">
+        <rect>
+         <x>370</x>
+         <y>60</y>
+         <width>27</width>
+         <height>27</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>...</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="rawProgramXmlFileLabel">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>30</y>
+         <width>171</width>
+         <height>27</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>rawprogram0.xml path</string>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="rawProgramXmlFileValue">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>60</y>
+         <width>351</width>
+         <height>27</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="rawProgramXmlWriteButton">
+       <property name="geometry">
+        <rect>
+         <x>270</x>
+         <y>110</y>
+         <width>121</width>
+         <height>27</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Write</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="rawProgramXmlCheckButton">
+       <property name="geometry">
+        <rect>
+         <x>140</x>
+         <y>110</y>
+         <width>121</width>
+         <height>27</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Check</string>
+       </property>
+      </widget>
+     </widget>
      <zorder>writeGroupBox</zorder>
      <zorder>readGroupBox</zorder>
      <zorder>openModeGroupBox</zorder>
      <zorder>openMultiGroupBox</zorder>
      <zorder>eraseFlashButton</zorder>
+     <zorder>rawProgramXmlGroupBox</zorder>
     </widget>
     <widget class="QWidget" name="partitionTab">
      <attribute name="title">
@@ -1460,7 +1585,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>430</y>
+      <y>440</y>
       <width>861</width>
       <height>71</height>
      </rect>
