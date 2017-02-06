@@ -208,7 +208,7 @@
        <rect>
         <x>10</x>
         <y>120</y>
-        <width>191</width>
+        <width>251</width>
         <height>71</height>
        </rect>
       </property>
@@ -224,7 +224,7 @@
       <widget class="QPushButton" name="securityModeButton">
        <property name="geometry">
         <rect>
-         <x>140</x>
+         <x>200</x>
          <y>30</y>
          <width>41</width>
          <height>27</height>
@@ -245,7 +245,7 @@
         <rect>
          <x>10</x>
          <y>30</y>
-         <width>121</width>
+         <width>171</width>
          <height>27</height>
         </rect>
        </property>
@@ -263,7 +263,7 @@
      <widget class="QGroupBox" name="unlockGroupBox">
       <property name="geometry">
        <rect>
-        <x>240</x>
+        <x>270</x>
         <y>120</y>
         <width>191</width>
         <height>71</height>
@@ -320,8 +320,8 @@
      <widget class="QGroupBox" name="eccGroupBox">
       <property name="geometry">
        <rect>
-        <x>470</x>
-        <y>120</y>
+        <x>10</x>
+        <y>200</y>
         <width>251</width>
         <height>71</height>
        </rect>
@@ -396,10 +396,10 @@
      <widget class="QGroupBox" name="miscGroupBox">
       <property name="geometry">
        <rect>
-        <x>10</x>
-        <y>210</y>
-        <width>421</width>
-        <height>71</height>
+        <x>280</x>
+        <y>200</y>
+        <width>181</width>
+        <height>131</height>
        </rect>
       </property>
       <property name="font">
@@ -434,8 +434,8 @@
       <widget class="QPushButton" name="resetButton">
        <property name="geometry">
         <rect>
-         <x>130</x>
-         <y>30</y>
+         <x>10</x>
+         <y>60</y>
          <width>101</width>
          <height>27</height>
         </rect>
@@ -453,8 +453,8 @@
       <widget class="QPushButton" name="powerDownButton">
        <property name="geometry">
         <rect>
-         <x>260</x>
-         <y>30</y>
+         <x>10</x>
+         <y>90</y>
          <width>151</width>
          <height>27</height>
         </rect>
@@ -469,6 +469,43 @@
         <string>Power Down</string>
        </property>
       </widget>
+     </widget>
+     <widget class="QTableWidget" name="sectorsTableWidget">
+      <property name="geometry">
+       <rect>
+        <x>480</x>
+        <y>140</y>
+        <width>361</width>
+        <height>191</height>
+       </rect>
+      </property>
+      <attribute name="horizontalHeaderStretchLastSection">
+       <bool>true</bool>
+      </attribute>
+      <column>
+       <property name="text">
+        <string>Size</string>
+       </property>
+      </column>
+     </widget>
+     <widget class="QLabel" name="flashSectorsLabel">
+      <property name="geometry">
+       <rect>
+        <x>480</x>
+        <y>115</y>
+        <width>361</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>Flash Sectors</string>
+      </property>
      </widget>
     </widget>
     <widget class="QWidget" name="readWriteTab">
@@ -743,15 +780,6 @@
         <string>Unframed (Faster if supported)</string>
        </property>
       </widget>
-      <zorder>writeFileValue</zorder>
-      <zorder>writeFileLabel</zorder>
-      <zorder>streamWriteButton</zorder>
-      <zorder>writeAddressValue</zorder>
-      <zorder>writeAddressLabel</zorder>
-      <zorder>writeFileBrowseButton</zorder>
-      <zorder>unframedWriteCheckbox</zorder>
-      <zorder>rawProgramXmlGroupBox</zorder>
-      <zorder>rawProgramXmlGroupBox</zorder>
      </widget>
      <widget class="QGroupBox" name="openModeGroupBox">
       <property name="geometry">
