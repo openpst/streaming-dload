@@ -37,6 +37,7 @@ namespace Ui {
 
 using OpenPST::QC::StreamingDloadSerialError;
 using OpenPST::QC::RawProgramXmlReader;
+using OpenPST::QC::RawProgramXmlReaderError;
 using OpenPST::QC::RawProgramXmlEntry;
 using OpenPST::Serial::SerialError;
 

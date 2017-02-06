@@ -69,7 +69,7 @@ void StreamingDloadReadGptTask::run()
         QMetaObject::invokeMethod(progressContainer, "setProgress",  Qt::QueuedConnection, Q_ARG(int, 20));
         QMetaObject::invokeMethod(progressContainer, "setTextLeft",  Qt::QueuedConnection, Q_ARG(QString, "Setting security mode"));
 
-        port.setSecurityMode(kStreamingDloadSecurityModeTrusted);
+        port.setSecurityMode(kStreamingDloadSecurityModeUntrusted);
 
         QMetaObject::invokeMethod(progressContainer, "setProgress",  Qt::QueuedConnection, Q_ARG(int, 30));
         QMetaObject::invokeMethod(progressContainer, "setTextLeft",  Qt::QueuedConnection, Q_ARG(QString, "Opening EMMC User Partition"));

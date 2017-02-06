@@ -18,55 +18,55 @@ using OpenPST::GptParser;
 StreamingDloadWindow::StreamingDloadWindow(QWidget *parent) :
 	QMainWindow(parent),
 	ui(new Ui::StreamingDloadWindow),
-	port("", 115200, 500),
+	port("", 115200, 100),
 	taskRunner(&taskShouldCancel)
 {
 	ui->setupUi(this);
 	 
-	ui->securityModeValue->addItem("0x01 - Trusted", kStreamingDloadSecurityModeTrusted);
-	ui->securityModeValue->addItem("0x00 - Untrusted", kStreamingDloadSecurityModeUntrusted);
+	ui->securityModeValue->addItem("Trusted", kStreamingDloadSecurityModeTrusted);
+	ui->securityModeValue->addItem("Untrusted", kStreamingDloadSecurityModeUntrusted);
 	ui->securityModeValue->setCurrentIndex(0);
 	
-	ui->openModeValue->addItem("0x01 - Bootloader Download", kStreamingDloadOpenModeBootloader);
-	ui->openModeValue->addItem("0x02 - Bootable Image Download", kStreamingDloadOpenModeBootableImage);
-	ui->openModeValue->addItem("0x03 - CEFS Image Download", kStreamingDloadOpenModeCefs);
-	ui->openModeValue->addItem("0x04 - Factory", kStreamingDloadOpenModeFactory);
+	ui->openModeValue->addItem("Bootloader Download", kStreamingDloadOpenModeBootloader);
+	ui->openModeValue->addItem("Bootable Image Download", kStreamingDloadOpenModeBootableImage);
+	ui->openModeValue->addItem("CEFS Image Download", kStreamingDloadOpenModeCefs);
+	ui->openModeValue->addItem("Factory", kStreamingDloadOpenModeFactory);
 	ui->openModeValue->setCurrentIndex(0);
 
-	ui->eccSetValue->addItem("0x00 - Disable", 0x00);
-	ui->eccSetValue->addItem("0x01 - Enable", 0x01);
+	ui->eccSetValue->addItem("Disable", 0x00);
+	ui->eccSetValue->addItem("Enable", 0x01);
 	ui->eccSetValue->setCurrentIndex(0);
 
-	ui->openMultiValue->addItem("0x01 - PBL", kStreamingDloadOpenModeMultiPbl);
-	ui->openMultiValue->addItem("0x02 - QC SBL Header & Config", kStreamingDloadOpenModeMultiQcsblhHdCfg);
-	ui->openMultiValue->addItem("0x03 - QC SBL", kStreamingDloadOpenModeMultiQcsbl);
-	ui->openMultiValue->addItem("0x04 - OEM SBL", kStreamingDloadOpenModeMultiOemsbl);
-	ui->openMultiValue->addItem("0x05 - AMSS", kStreamingDloadOpenModeMultiAmss);
-	ui->openMultiValue->addItem("0x06 - APPS", kStreamingDloadOpenModeMultiApps);
-	ui->openMultiValue->addItem("0x07 - OBL - MSM6250", kStreamingDloadOpenModeMultiObl);
-	ui->openMultiValue->addItem("0x08 - FOTA UI", kStreamingDloadOpenModeMultiFotaui);
-	ui->openMultiValue->addItem("0x09 - CEFS", kStreamingDloadOpenModeMultiCefs);
-	ui->openMultiValue->addItem("0x0A - AMSS applications boot loader", kStreamingDloadOpenModeMultiApps_CEFS);
-	ui->openMultiValue->addItem("0x0B - Apps CEFS", kStreamingDloadOpenModeMultiFlashBin);
-	ui->openMultiValue->addItem("0x0C - Flash.bin for Windows Mobile", kStreamingDloadOpenModeMultiDsp1);
-	ui->openMultiValue->addItem("0x0D - DSP1 runtime image", kStreamingDloadOpenModeMultiDsp1);
-	ui->openMultiValue->addItem("0x0E - User defined partition", kStreamingDloadOpenModeMultiCustom);
-	ui->openMultiValue->addItem("0x0F - DBL - Secure Boot 2.0", kStreamingDloadOpenModeMultiDbl);
-	ui->openMultiValue->addItem("0x10 - OSBL - Secure Boot 2.0", kStreamingDloadOpenModeMultiOsbl);
-	ui->openMultiValue->addItem("0x11 - FSBL - Secure Boot 2.0", kStreamingDloadOpenModeMultiFsbl);
-	ui->openMultiValue->addItem("0x12 - DSP2 executable ", kStreamingDloadOpenModeMultiDsp2);
-	ui->openMultiValue->addItem("0x13 - Apps EFS2 raw image ", kStreamingDloadOpenModeMultiRaw);
-	ui->openMultiValue->addItem("0x14 - ROFS1 - Symbian", kStreamingDloadOpenModeMultiRofs1);
-	ui->openMultiValue->addItem("0x15 - ROFS2 - Symbian", kStreamingDloadOpenModeMultiRofs2);
-	ui->openMultiValue->addItem("0x16 - ROFS3 - Symbian", kStreamingDloadOpenModeMultiRofs3);
-	ui->openMultiValue->addItem("0x21 - EMMC USER partition ", kStreamingDloadOpenModeMultiEmmcUser);
-	ui->openMultiValue->addItem("0x22 - EMMC BOOT0 partition ", kStreamingDloadOpenModeMultiEmmcBoot0);
-	ui->openMultiValue->addItem("0x23 - EMMC BOOT1 partition ", kStreamingDloadOpenModeMultiEmmcBoot1);
-	ui->openMultiValue->addItem("0x24 - EMMC RPMB", kStreamingDloadOpenModeMultiRpmb);
-	ui->openMultiValue->addItem("0x25 - EMMC GPP1", kStreamingDloadOpenModeMultiGpp1);
-	ui->openMultiValue->addItem("0x26 - EMMC GPP2", kStreamingDloadOpenModeMultiGpp2);
-	ui->openMultiValue->addItem("0x27 - EMMC GPP3", kStreamingDloadOpenModeMultiGpp3);
-	ui->openMultiValue->addItem("0x28 - EMMC GPP4", kStreamingDloadOpenModeMultiGpp4);
+	ui->openMultiValue->addItem("PBL", kStreamingDloadOpenModeMultiPbl);
+	ui->openMultiValue->addItem("QC SBL Header & Config", kStreamingDloadOpenModeMultiQcsblhHdCfg);
+	ui->openMultiValue->addItem("QC SBL", kStreamingDloadOpenModeMultiQcsbl);
+	ui->openMultiValue->addItem("OEM SBL", kStreamingDloadOpenModeMultiOemsbl);
+	ui->openMultiValue->addItem("AMSS", kStreamingDloadOpenModeMultiAmss);
+	ui->openMultiValue->addItem("APPS", kStreamingDloadOpenModeMultiApps);
+	ui->openMultiValue->addItem("OBL - MSM6250", kStreamingDloadOpenModeMultiObl);
+	ui->openMultiValue->addItem("FOTA UI", kStreamingDloadOpenModeMultiFotaui);
+	ui->openMultiValue->addItem("CEFS", kStreamingDloadOpenModeMultiCefs);
+	ui->openMultiValue->addItem("AMSS applications boot loader", kStreamingDloadOpenModeMultiApps_CEFS);
+	ui->openMultiValue->addItem("Apps CEFS", kStreamingDloadOpenModeMultiFlashBin);
+	ui->openMultiValue->addItem("Flash.bin for Windows Mobile", kStreamingDloadOpenModeMultiDsp1);
+	ui->openMultiValue->addItem("DSP1 runtime image", kStreamingDloadOpenModeMultiDsp1);
+	ui->openMultiValue->addItem("User defined partition", kStreamingDloadOpenModeMultiCustom);
+	ui->openMultiValue->addItem("DBL - Secure Boot 2.0", kStreamingDloadOpenModeMultiDbl);
+	ui->openMultiValue->addItem("OSBL - Secure Boot 2.0", kStreamingDloadOpenModeMultiOsbl);
+	ui->openMultiValue->addItem("FSBL - Secure Boot 2.0", kStreamingDloadOpenModeMultiFsbl);
+	ui->openMultiValue->addItem("DSP2 executable ", kStreamingDloadOpenModeMultiDsp2);
+	ui->openMultiValue->addItem("Apps EFS2 raw image ", kStreamingDloadOpenModeMultiRaw);
+	ui->openMultiValue->addItem("ROFS1 - Symbian", kStreamingDloadOpenModeMultiRofs1);
+	ui->openMultiValue->addItem("ROFS2 - Symbian", kStreamingDloadOpenModeMultiRofs2);
+	ui->openMultiValue->addItem("ROFS3 - Symbian", kStreamingDloadOpenModeMultiRofs3);
+	ui->openMultiValue->addItem("EMMC USER partition ", kStreamingDloadOpenModeMultiEmmcUser);
+	ui->openMultiValue->addItem("EMMC BOOT0 partition ", kStreamingDloadOpenModeMultiEmmcBoot0);
+	ui->openMultiValue->addItem("EMMC BOOT1 partition ", kStreamingDloadOpenModeMultiEmmcBoot1);
+	ui->openMultiValue->addItem("EMMC RPMB", kStreamingDloadOpenModeMultiRpmb);
+	ui->openMultiValue->addItem("EMMC GPP1", kStreamingDloadOpenModeMultiGpp1);
+	ui->openMultiValue->addItem("EMMC GPP2", kStreamingDloadOpenModeMultiGpp2);
+	ui->openMultiValue->addItem("EMMC GPP3", kStreamingDloadOpenModeMultiGpp3);
+	ui->openMultiValue->addItem("EMMC GPP4", kStreamingDloadOpenModeMultiGpp4);
 	ui->openMultiValue->setCurrentIndex(0);
 
 	QObject::connect(ui->portRefreshButton, SIGNAL(clicked()), this, SLOT(updatePortList()));
@@ -117,7 +117,7 @@ StreamingDloadWindow::~StreamingDloadWindow()
 void StreamingDloadWindow::updatePortList()
 {
 	if (port.isOpen()) {
-		log("Port is currently open");
+		log(tr("Port is currently open"));
 		return;
 	}
 
@@ -152,10 +152,10 @@ void StreamingDloadWindow::connectToPort()
 	QString tmp;
 
 	if (port.isOpen()) {
-		log("A device is already open");
+		log(tr("A device is already open"));
 		return;
 	} else if (selected.compare("0") == 0 || !selected.length()) {
-		log("Select to a device first");
+		log(tr("Select to a device first"));
 		return;
 	}
 
@@ -193,7 +193,7 @@ void StreamingDloadWindow::disconnectPort()
 {
 	if (port.isOpen()) {
 		port.close();
-		log("Port Closed");
+		log(tr("Port Closed"));
 	}
 }
 
@@ -204,18 +204,18 @@ void StreamingDloadWindow::sendHello()
 {
 
 	if (!port.isOpen()) {
-		log("Port Not Open");
+		log(tr("Port Not Open"));
 		return;
 	}
 
 	if (!ui->helloMagicValue->text().length()) {
-		log("Magic is required\n");
+		log(tr("Magic is required"));
 		return;
 	} else if (!ui->helloVersionValue->text().length()) {
-		log("Version is required\n");
+		log(tr("Version is required"));
 		return;
 	} else if (!ui->helloCompatibleVersionValue->text().length()) {
-		log("Compatible version is required\n");
+		log(tr("Compatible version is required"));
 		return;
 	}
 	
@@ -248,30 +248,33 @@ void StreamingDloadWindow::sendHello()
 	
 	
 	// dump all sector sizes
+	ui->sectorsTableWidget->setRowCount(port.state.hello.numberOfSectors);
+
 	for (int i = 0; i < port.state.hello.numberOfSectors; i++) {
-		log(tmp.sprintf("Sector %d: %lu", i+1, port.state.hello.sectorSizes[i]));
+		ui->sectorsTableWidget->setItem(i, 0, new QTableWidgetItem(tmp.sprintf("%lu - 0x%08X", port.state.hello.sectorSizes[i],
+			port.state.hello.sectorSizes[i])));
 	}
 
 	log(tmp.sprintf("Feature Bits: %02X", port.state.hello.featureBits));
 
 	if (port.state.hello.featureBits & STREAMING_DLOAD_FEATURE_BIT_UNCOMPRESSED_DOWNLOAD) {
-		log("Device requires an uncompressed download");
+		log(tr("Device requires an uncompressed download"));
 	}
 
 	if (port.state.hello.featureBits & STREAMING_DLOAD_FEATURE_BIT_NAND_BOOTABLE_IMAGE) {
-		log("Device features NAND Bootable Image");
+		log(tr("Device features NAND Bootable Image"));
 	}
 
 	if (port.state.hello.featureBits & STREAMING_DLOAD_FEATURE_BIT_NAND_BOOT_LOADER) {
-		log("Device features NAND Bootloader");
+		log(tr("Device features NAND Bootloader"));
 	}
 
 	if (port.state.hello.featureBits & STREAMING_DLOAD_FEATURE_BIT_MULTI_IMAGE) {
-		log("Supports multi-image");
+		log(tr("Supports multi-image"));
 	}
 
 	if (port.state.hello.featureBits & STREAMING_DLOAD_FEATURE_BIT_SECTOR_ADDRESSES) {
-		log("Device features sector addresses");
+		log(tr("Device features sector addresses"));
 	}
 }
 
@@ -281,7 +284,7 @@ void StreamingDloadWindow::sendHello()
 void StreamingDloadWindow::setSecurityMode()
 {
 	if (!port.isOpen()) {
-		log("Port Not Open");
+		log(tr("Port Not Open"));
 		return;
 	}
 	
@@ -312,7 +315,7 @@ void StreamingDloadWindow::setSecurityMode()
 void StreamingDloadWindow::sendUnlock()
 {
 	if (!port.isOpen()) {
-		log("Port Not Open");
+		log(tr("Port Not Open"));
 		return;
 	}
 
@@ -322,7 +325,7 @@ void StreamingDloadWindow::sendUnlock()
 
 	try {
 		if (port.sendUnlock(ui->unlockCodeValue->text().toStdString())) {
-			log("Unlocked");
+			log(tr("Unlocked"));
 		}
 	} catch (StreamingDloadSerialError& e) {
 		log(e.what());
@@ -340,7 +343,7 @@ void StreamingDloadWindow::sendUnlock()
 void StreamingDloadWindow::sendNop()
 {
 	if (!port.isOpen()) {
-		log("Port Not Open");
+		log(tr("Port Not Open"));
 		return;
 	}
 
@@ -361,13 +364,13 @@ void StreamingDloadWindow::sendNop()
 void StreamingDloadWindow::sendReset()
 {
 	if (!port.isOpen()) {
-		log("Port Not Open");
+		log(tr("Port Not Open"));
 		return;
 	}
 
 	try {
 		port.sendReset();
-		log("Device Resetting");
+		log(tr("Device Resetting"));
 		port.close();
 		
 	} catch (StreamingDloadSerialError& e) {
@@ -385,13 +388,13 @@ void StreamingDloadWindow::sendReset()
 void StreamingDloadWindow::sendPowerDown()
 {
 	if (!port.isOpen()) {
-		log("Port Not Open");
+		log(tr("Port Not Open"));
 		return;
 	}
 
 	try {
 		port.sendPowerOff();
-		log("Device Powering Down");
+		log(tr("Device Powering Down"));
 		port.close();		
 	} catch (StreamingDloadSerialError& e) {
 		log(e.what());
@@ -408,7 +411,7 @@ void StreamingDloadWindow::sendPowerDown()
 void StreamingDloadWindow::openMode()
 {
 	if (!port.isOpen()) {
-		log("Port Not Open");
+		log(tr("Port Not Open"));
 		return;
 	}
 
@@ -435,13 +438,13 @@ void StreamingDloadWindow::openMode()
 void StreamingDloadWindow::closeMode()
 {
 	if (!port.isOpen()) {
-		log("Port Not Open");
+		log(tr("Port Not Open"));
 		return;
 	}
 
 	try {
 		if (port.closeMode()) {
-			log("Mode Closed");
+			log(tr("Mode Closed"));
 		}
 	} catch (StreamingDloadSerialError& e) {
 		log(e.what());
@@ -458,7 +461,7 @@ void StreamingDloadWindow::closeMode()
 void StreamingDloadWindow::readEccState()
 {
 	if (!port.isOpen()) {
-		log("Port Not Open");
+		log(tr("Port Not Open"));
 		return;
 	}
 
@@ -475,11 +478,11 @@ void StreamingDloadWindow::readEccState()
 	}
 
 	if (state == 0x01) {
-		log("ECC Enabled");
+		log(tr("ECC Enabled"));
 	} else if (state == 0x00) {
-		log("ECC Disabled");
+		log(tr("ECC Disabled"));
 	} else {
-		log("Unknown ECC State");
+		log(tr("Unknown ECC State"));
 	}
 
 	// set the ecc set choice box value to the matching
@@ -496,7 +499,7 @@ void StreamingDloadWindow::readEccState()
 void StreamingDloadWindow::setEccState()
 {
 	if (!port.isOpen()) {
-		log("Port Not Open");
+		log(tr("Port Not Open"));
 		return;
 	}
 
@@ -507,9 +510,9 @@ void StreamingDloadWindow::setEccState()
 		bool status = port.setEcc(state);
 
 		if (status && state == 0x00) {
-			log("ECC Disabled");
+			log(tr("ECC Disabled"));
 		} else if (status && state == 0x01) {
-			log("ECC Enabled");
+			log(tr("ECC Enabled"));
 		}
 
 	} catch (StreamingDloadSerialError& e) {
@@ -528,7 +531,7 @@ void StreamingDloadWindow::setEccState()
 void StreamingDloadWindow::read()
 {
 	if (!port.isOpen()) {
-		log("Port Not Open");
+		log(tr("Port Not Open"));
 		return;
 	}
 
@@ -536,19 +539,19 @@ void StreamingDloadWindow::read()
 	size_t	 size = std::stoi(ui->readSizeValue->text().toStdString().c_str(), nullptr, 10);
 
 	if (size <= 0) {
-		log("Enter a valid size to read");
+		log(tr("Enter a valid size to read"));
 		return;
 	}
 
 	QString fileName = QFileDialog::getSaveFileName(this, tr("Save Read Data"), "", tr("Binary Files (*.bin)"));
 
 	if (!fileName.length()) {
-		log("Read operation cancelled");
+		log(tr("Read operation cancelled"));
 		return;
 	}
 
 	if (taskRunner.isRunning()) {
-		log("Read task put in queue");
+		log(tr("Read task put in queue"));
 	}
 
 	addTask(new StreamingDloadReadTask(address, size, fileName.toStdString(), ui->progressGroupBox, port));
@@ -560,7 +563,7 @@ void StreamingDloadWindow::read()
 void StreamingDloadWindow::streamWrite()
 {
 	if (!port.isOpen()) {
-		log("Port Not Open");
+		log(tr("Port Not Open"));
 		return;
 	}
 
@@ -571,12 +574,12 @@ void StreamingDloadWindow::streamWrite()
 	QString filePath = ui->writeFileValue->text();
 
 	if (!filePath.length()) {
-		log("No file specified");
+		log(tr("No file specified"));
 		return;
 	}
 
 	if (taskRunner.isRunning()) {
-		log("Write task put in queue");
+		log(tr("Write task put in queue"));
 	}
 	
 	addTask(new StreamingDloadStreamWriteTask(address, filePath.toStdString(), unframed, ui->progressGroupBox, port));
@@ -588,7 +591,7 @@ void StreamingDloadWindow::streamWrite()
 void StreamingDloadWindow::openMultiMode()
 {
 	if (!port.isOpen()) {
-		log("Port Not Open");
+		log(tr("Port Not Open"));
 		return;
 	}
 
@@ -627,14 +630,14 @@ void StreamingDloadWindow::writePartitionTable()
 {
 
 	if (!port.isOpen()) {
-		log("Port Not Open");
+		log(tr("Port Not Open"));
 		return;
 	}
 
 	QString fileName = ui->writePartitionTableFileValue->text();
 
 	if (!fileName.length()) {
-		log("Enter Partition File Path");
+		log(tr("Enter Partition File Path"));
 		return;
 	}
 
@@ -655,7 +658,8 @@ void StreamingDloadWindow::writePartitionTable()
 
 void StreamingDloadWindow::eraseFlash()
 {
-	QMessageBox::StandardButton confirmation = QMessageBox::question(this, "DANGEROUS OPERATION", "If this operation fails, it can make the device inoperable and only able to be restored by JTAG. Continue?");
+	QMessageBox::StandardButton confirmation = QMessageBox::question(this, tr("DANGEROUS OPERATION"), 
+		tr("If this operation fails, it can make the device inoperable and only able to be restored by JTAG. Continue?"));
 
 	if (confirmation == QMessageBox::Yes) {
 
@@ -670,7 +674,7 @@ void StreamingDloadWindow::eraseFlash()
 void StreamingDloadWindow::browseForWriteFile()
 {
 
-	QString fileName = QFileDialog::getOpenFileName(this, "Browse For File", "", "Image Files (*.bin, *.mbn)");
+	QString fileName = QFileDialog::getOpenFileName(this, tr("Browse For File"), "", tr("Image Files (*.bin, *.mbn)"));
 
 	if (fileName.length()) {
 		ui->writeFileValue->setText(fileName);
@@ -682,7 +686,7 @@ void StreamingDloadWindow::browseForWriteFile()
 */
 void StreamingDloadWindow::browseForGptFileAndParse()
 {
-	QString fileName = QFileDialog::getOpenFileName(this, "Browse For File", "", "*.*");
+	QString fileName = QFileDialog::getOpenFileName(this, tr("Browse For File"), "", "*.*");
 	
 	if (fileName.length()) {
 		parseGpt(fileName);
@@ -710,7 +714,7 @@ void StreamingDloadWindow::parseGpt(QString filePath)
 		log(e.what());
 		return;
 	} catch (...) {
-		log("Unexpected error encountered");
+		log(tr("Unexpected error encountered"));
 		return;
 	}
 	
@@ -752,7 +756,7 @@ void StreamingDloadWindow::parseGpt(QString filePath)
 		}
 
 	} else {
-		log("No Entries To Parse");
+		log(tr("No Entries To Parse"));
 	}
 }
 
@@ -761,7 +765,7 @@ void StreamingDloadWindow::readGptFromDevice()
 	QString savePath = QFileDialog::getSaveFileName(this, tr("Save GPT data to file"), "", tr("Any Files (*.*)"));
 
 	if (!savePath.length()) {
-		log("Aborted read GPT from device");
+		log(tr("Aborted read GPT from device"));
 		return;
 	}
 
@@ -916,7 +920,7 @@ void StreamingDloadWindow::closeEvent(QCloseEvent *event)
 
 void StreamingDloadWindow::browseForRawProgramXml()
 {
-	QString fileName = QFileDialog::getOpenFileName(this, "Select rawprogram0.xml", "", "XML Files (*.xml)");
+	QString fileName = QFileDialog::getOpenFileName(this, tr("Select rawprogram0.xml"), "", tr("XML Files (*.xml)"));
 
 	if (fileName.length()) {
 		ui->rawProgramXmlFileValue->setText(fileName);
@@ -941,15 +945,15 @@ void StreamingDloadWindow::parseRawXml(const QString& filePath)
 
 	try {
 		entries = reader.parse(filePath.toStdString(), numberOfSectors);
-	} catch(std::invalid_argument& e) {
+	} catch(RawProgramXmlReaderError& e) {
 		log(tmp.sprintf("Error parsing XML: %s", e.what()));
 		return;
 	} catch (...) {
-		log("error parsing XML: Unhandled exception");
+		log(tr("Error parsing XML: Unhandled exception"));
 	}
 
 	if (!entries.size()) {
-		log("No entries found referenced in xml document");
+		log(tr("No entries found referenced in xml document"));
 		return;
 	}
 
@@ -959,8 +963,8 @@ void StreamingDloadWindow::parseRawXml(const QString& filePath)
 	QDir xmlFileDir 	= xmlFileInfo.dir();
 	QDir applicationDir = QDir::current();
 
-	log("Searching the following directories for relative images:");
-	log("\t- Specified absolute path to image");
+	log(tr("Searching the following directories for relative images:"));
+	log(tr("\t- Specified absolute path to image"));
 	log("\t- " + xmlFileDir.path());
 	log("\t- " + applicationDir.path());
 
@@ -992,7 +996,7 @@ void StreamingDloadWindow::parseRawXml(const QString& filePath)
 
 	QTableWidget* table = dialog.getTableWidget();
 
-	table->setColumnCount(12);
+	table->setColumnCount(15);
 	table->setHorizontalHeaderItem(0,  new QTableWidgetItem(tr("Label")));
 	table->setHorizontalHeaderItem(1,  new QTableWidgetItem(tr("File Name")));
 	table->setHorizontalHeaderItem(2,  new QTableWidgetItem(tr("Resolved Path")));
@@ -1000,11 +1004,14 @@ void StreamingDloadWindow::parseRawXml(const QString& filePath)
 	table->setHorizontalHeaderItem(4,  new QTableWidgetItem(tr("File Sector Offset")));
 	table->setHorizontalHeaderItem(5,  new QTableWidgetItem(tr("# Partition Sectors")));
 	table->setHorizontalHeaderItem(6,  new QTableWidgetItem(tr("Part of Single Image")));
-	table->setHorizontalHeaderItem(7,  new QTableWidgetItem(tr("Read Back Verify")));
-	table->setHorizontalHeaderItem(8,  new QTableWidgetItem(tr("Sparse")));
-	table->setHorizontalHeaderItem(9,  new QTableWidgetItem(tr("Start Byte")));
-	table->setHorizontalHeaderItem(10, new QTableWidgetItem(tr("Start Sector")));
-	table->setHorizontalHeaderItem(11, new QTableWidgetItem(tr("Size")));
+	table->setHorizontalHeaderItem(7,  new QTableWidgetItem(tr("Physical Partition Number")));
+	table->setHorizontalHeaderItem(8,  new QTableWidgetItem(tr("Read Back Verify")));
+	table->setHorizontalHeaderItem(9,  new QTableWidgetItem(tr("Sparse")));
+	table->setHorizontalHeaderItem(10, new QTableWidgetItem(tr("Start Byte")));
+	table->setHorizontalHeaderItem(11, new QTableWidgetItem(tr("Start Byte HEX")));
+	table->setHorizontalHeaderItem(12, new QTableWidgetItem(tr("Start Sector")));
+	table->setHorizontalHeaderItem(13, new QTableWidgetItem(tr("Size")));
+	table->setHorizontalHeaderItem(14, new QTableWidgetItem(tr("Size in KB")));
 
 	table->setRowCount(rawProgramEntries.size());
 
@@ -1018,6 +1025,19 @@ void StreamingDloadWindow::parseRawXml(const QString& filePath)
 			table->setItem(row, 2, new QTableWidgetItem(tr("Not Found")));
 		}
 		
+		table->setItem(row, 3, new QTableWidgetItem(tmp.sprintf("%lu", entry.entry.sectorSize)));
+		table->setItem(row, 4, new QTableWidgetItem(tmp.sprintf("%lu", entry.entry.fileSectorOffset)));
+		table->setItem(row, 5, new QTableWidgetItem(tmp.sprintf("%d", entry.entry.numPartitionSectors)));
+		table->setItem(row, 6, new QTableWidgetItem(entry.entry.partOfSingleImage ? tr("Yes") : tr("No")));
+		table->setItem(row, 7, new QTableWidgetItem(tmp.sprintf("%d", entry.entry.physicalPartitionNumber)));
+		table->setItem(row, 8, new QTableWidgetItem(entry.entry.readBackVerify ? tr("Yes") : tr("No")));
+		table->setItem(row, 9, new QTableWidgetItem(entry.entry.sparse ? tr("Yes") : tr("No")));
+		table->setItem(row, 10, new QTableWidgetItem(tmp.sprintf("%d", entry.entry.startByte)));
+		table->setItem(row, 11, new QTableWidgetItem(tmp.sprintf("0x%08X", entry.entry.startByte)));
+		table->setItem(row, 12, new QTableWidgetItem(tmp.sprintf("%d", entry.entry.startSector)));
+		table->setItem(row, 13, new QTableWidgetItem(tmp.sprintf("%d", entry.entry.size)));
+		table->setItem(row, 14, new QTableWidgetItem(tmp.sprintf("%f", entry.entry.sizeInKb)));
+
 		row++;
 	}
 
@@ -1029,7 +1049,7 @@ void StreamingDloadWindow::checkRawProgramXml()
 	QString tmp;
 
 	if (!ui->rawProgramXmlFileValue->text().length()) {
-		log("Enter or browse for a valid rawprogram0.xml file");
+		log(tr("Enter or browse for a valid rawprogram0.xml file"));
 		return;
 	}
 
