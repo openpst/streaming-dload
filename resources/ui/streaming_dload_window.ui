@@ -517,7 +517,7 @@
        <rect>
         <x>10</x>
         <y>100</y>
-        <width>651</width>
+        <width>831</width>
         <height>71</height>
        </rect>
       </property>
@@ -535,7 +535,7 @@
       <widget class="QPushButton" name="readButton">
        <property name="geometry">
         <rect>
-         <x>550</x>
+         <x>730</x>
          <y>30</y>
          <width>91</width>
          <height>27</height>
@@ -556,7 +556,7 @@
         <rect>
          <x>360</x>
          <y>30</y>
-         <width>171</width>
+         <width>111</width>
          <height>27</height>
         </rect>
        </property>
@@ -573,7 +573,7 @@
       <widget class="QLineEdit" name="readAddressValue">
        <property name="geometry">
         <rect>
-         <x>80</x>
+         <x>60</x>
          <y>30</y>
          <width>211</width>
          <height>27</height>
@@ -592,9 +592,9 @@
       <widget class="QLabel" name="readSizeLabel">
        <property name="geometry">
         <rect>
-         <x>308</x>
+         <x>286</x>
          <y>30</y>
-         <width>47</width>
+         <width>71</width>
          <height>27</height>
         </rect>
        </property>
@@ -605,7 +605,7 @@
         </font>
        </property>
        <property name="text">
-        <string>Size</string>
+        <string>Amount</string>
        </property>
       </widget>
       <widget class="QLabel" name="readAddressLabel">
@@ -613,7 +613,7 @@
         <rect>
          <x>10</x>
          <y>30</y>
-         <width>91</width>
+         <width>41</width>
          <height>27</height>
         </rect>
        </property>
@@ -624,7 +624,45 @@
         </font>
        </property>
        <property name="text">
-        <string>Address</string>
+        <string>LBA</string>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="readSizeValue_2">
+       <property name="geometry">
+        <rect>
+         <x>600</x>
+         <y>30</y>
+         <width>111</width>
+         <height>27</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>512</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="readSizeLabel_2">
+       <property name="geometry">
+        <rect>
+         <x>520</x>
+         <y>30</y>
+         <width>81</width>
+         <height>27</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Block Size</string>
        </property>
       </widget>
      </widget>
@@ -652,7 +690,7 @@
         <rect>
          <x>80</x>
          <y>30</y>
-         <width>291</width>
+         <width>281</width>
          <height>27</height>
         </rect>
        </property>
@@ -739,7 +777,7 @@
         </font>
        </property>
        <property name="text">
-        <string>Address</string>
+        <string>LBA</string>
        </property>
       </widget>
       <widget class="QToolButton" name="writeFileBrowseButton">
@@ -778,6 +816,44 @@
        </property>
        <property name="text">
         <string>Unframed (Faster if supported)</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="writeAddressLabel_2">
+       <property name="geometry">
+        <rect>
+         <x>240</x>
+         <y>70</y>
+         <width>71</width>
+         <height>27</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Block Size</string>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="writeAddressValue_2">
+       <property name="geometry">
+        <rect>
+         <x>320</x>
+         <y>70</y>
+         <width>81</width>
+         <height>27</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>512</string>
        </property>
       </widget>
      </widget>
@@ -936,8 +1012,8 @@
      <widget class="QPushButton" name="eraseFlashButton">
       <property name="geometry">
        <rect>
-        <x>670</x>
-        <y>120</y>
+        <x>500</x>
+        <y>90</y>
         <width>171</width>
         <height>27</height>
        </rect>
@@ -966,13 +1042,13 @@
        </font>
       </property>
       <property name="title">
-       <string>Run Raw Program XML</string>
+       <string>Auto Restore</string>
       </property>
-      <widget class="QToolButton" name="rawProgramXmlFileBrowseButton">
+      <widget class="QToolButton" name="autoRestoreFileBrowseButton">
        <property name="geometry">
         <rect>
          <x>370</x>
-         <y>60</y>
+         <y>70</y>
          <width>27</width>
          <height>27</height>
         </rect>
@@ -987,12 +1063,12 @@
         <string>...</string>
        </property>
       </widget>
-      <widget class="QLabel" name="rawProgramXmlFileLabel">
+      <widget class="QLabel" name="autoRestoreFormatLabel">
        <property name="geometry">
         <rect>
          <x>10</x>
          <y>30</y>
-         <width>171</width>
+         <width>101</width>
          <height>27</height>
         </rect>
        </property>
@@ -1003,14 +1079,14 @@
         </font>
        </property>
        <property name="text">
-        <string>rawprogram0.xml path</string>
+        <string>Using Format:</string>
        </property>
       </widget>
-      <widget class="QLineEdit" name="rawProgramXmlFileValue">
+      <widget class="QLineEdit" name="autoRestoreFileValue">
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>60</y>
+         <y>70</y>
          <width>351</width>
          <height>27</height>
         </rect>
@@ -1025,10 +1101,10 @@
         <string/>
        </property>
       </widget>
-      <widget class="QPushButton" name="rawProgramXmlWriteButton">
+      <widget class="QPushButton" name="autoRestoreWriteButton">
        <property name="geometry">
         <rect>
-         <x>270</x>
+         <x>280</x>
          <y>110</y>
          <width>121</width>
          <height>27</height>
@@ -1044,10 +1120,10 @@
         <string>Write</string>
        </property>
       </widget>
-      <widget class="QPushButton" name="rawProgramXmlCheckButton">
+      <widget class="QPushButton" name="autoRestoreCheckButton">
        <property name="geometry">
         <rect>
-         <x>140</x>
+         <x>150</x>
          <y>110</y>
          <width>121</width>
          <height>27</height>
@@ -1062,6 +1138,37 @@
        <property name="text">
         <string>Check</string>
        </property>
+      </widget>
+      <widget class="QComboBox" name="autoRestoreFormatComboBox">
+       <property name="geometry">
+        <rect>
+         <x>110</x>
+         <y>30</y>
+         <width>291</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <item>
+        <property name="text">
+         <string>Qualcomm rawprogram0.xml</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>LG partition.txt</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>GPT</string>
+        </property>
+       </item>
       </widget>
      </widget>
      <zorder>writeGroupBox</zorder>
@@ -1092,7 +1199,7 @@
        </font>
       </property>
       <property name="title">
-       <string>Write Partition Table</string>
+       <string>Write Partition Table (MBR Only Devices)</string>
       </property>
       <widget class="QPushButton" name="writePartitionTableButton">
        <property name="geometry">
