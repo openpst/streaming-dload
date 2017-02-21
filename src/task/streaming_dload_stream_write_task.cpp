@@ -63,17 +63,18 @@ void StreamingDloadStreamWriteTask::run()
     size_t total = file.tellg();
     size_t step  = total;
     size_t written = 0;
+    int blocksWritten = 0;
     
-    if (unframed) {
-        step = STREAMING_DLOAD_MAX_DATA_SIZE * 20;
-        log("Writing in unframed mode");
-    } else {
+    //if (unframed) {
+    //    step = STREAMING_DLOAD_MAX_DATA_SIZE * 20;
+    //    log("Writing in unframed mode");
+    //} else {
         if (port.state.negotiated && port.state.hello.maxPreferredBlockSize && step > port.state.hello.maxPreferredBlockSize) {
             step = port.state.hello.maxPreferredBlockSize;
         } else if (step > STREAMING_DLOAD_MAX_DATA_SIZE) {
             step = STREAMING_DLOAD_MAX_DATA_SIZE;
         }
-    }
+    //}
 
     QMetaObject::invokeMethod(progressContainer, "setProgress",  Qt::QueuedConnection, Q_ARG(int, 0), Q_ARG(int, total), Q_ARG(int, 0));
     QMetaObject::invokeMethod(progressContainer, "setTextLeft",  Qt::QueuedConnection, Q_ARG(QString, message.sprintf("Writing %lu bytes at 0x%08X", total, address)));
@@ -88,7 +89,12 @@ void StreamingDloadStreamWriteTask::run()
 
     file.seekg(0, file.beg);
     
-    emit log(message.sprintf("Writing %lu bytes at %08X from %s", total, address, filePath.c_str()));
+    emit log(message.sprintf("Writing %lu bytes at LBA %08X (%d sectors) from %s", 
+        total, 
+        address,
+        (total / 512),
+        filePath.c_str()
+    ));
 
     while (written < total) {
         if (cancelled()) {
@@ -110,10 +116,13 @@ void StreamingDloadStreamWriteTask::run()
 
         try {
             if (unframed) {
-                written += port.writeFlashUnframed(address + written, reinterpret_cast<uint8_t*>(fbuff), step);
+                //written += port.writeFlashUnframed(address + written, reinterpret_cast<uint8_t*>(fbuff), step);
             } else {
-                written += port.writeFlash(address + written, reinterpret_cast<uint8_t*>(fbuff), step);
+                size_t thisWrite = port.writeFlash(address + blocksWritten, reinterpret_cast<uint8_t*>(fbuff), step);
+                written += thisWrite;
+                blocksWritten += thisWrite/512;
             }
+
         } catch(StreamingDloadSerialError& e) {
             delete[] fbuff;
             file.close();

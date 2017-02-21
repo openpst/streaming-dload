@@ -49,6 +49,7 @@ void StreamingDloadReadGptTask::run()
     size_t toRead = GPT_MAX_SIZE;
     size_t read = 0;
     size_t step = toRead;
+    int sectorsRead = 0;
     int progressTotal = toRead;
 
     if (port.state.negotiated && port.state.hello.maxPreferredBlockSize && step > port.state.hello.maxPreferredBlockSize) {
@@ -105,7 +106,10 @@ void StreamingDloadReadGptTask::run()
                 return;
             }
 
-            read += port.readFlash(0x00000000 + read, step, data);
+            size_t thisRead = port.readFlash(0x00000000 + sectorsRead, step, data);
+
+            read += thisRead;
+            sectorsRead += thisRead/512;
 
             QMetaObject::invokeMethod(progressContainer, "setProgress",  Qt::QueuedConnection, Q_ARG(int, read));
         }

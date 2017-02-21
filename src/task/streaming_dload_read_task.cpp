@@ -47,8 +47,9 @@ StreamingDloadReadTask::~StreamingDloadReadTask()
 void StreamingDloadReadTask::run()
 {
     QString message;
-    size_t step  = amount;
-    size_t total = 0;
+    size_t step    = amount;
+    size_t total   = 0;
+    int blocksRead = 0;
 
     if (port.state.negotiated && port.state.hello.maxPreferredBlockSize && step > port.state.hello.maxPreferredBlockSize) {
         step = port.state.hello.maxPreferredBlockSize;
@@ -69,7 +70,19 @@ void StreamingDloadReadTask::run()
         return;
     }
 
-    emit log(message.sprintf("Reading %lu bytes from %08X Writing data to %s", amount, address, outFilePath.c_str()));
+    if (amount % 512 != 0) {
+        while(amount % 512 != 0) {
+            amount++;
+        }
+        emit log(message.sprintf("Adjusted read amount to %lu for block size alignment to %d bytes per sector", amount, 512));
+    }
+
+    emit log(message.sprintf("Reading %lu bytes from LBA %08X (%d sectors) Writing data to %s", 
+        amount, 
+        address,
+        amount/512,
+        outFilePath.c_str()
+    ));
 
     while (total < amount) {
         if (cancelled()) {
@@ -83,14 +96,17 @@ void StreamingDloadReadTask::run()
         }
 
         try {
-            total += port.readFlash(address + total, step, file);
+            size_t thisRead = port.readFlash(address + blocksRead, step, file);
+
+            total += thisRead;
+            blocksRead += thisRead/512;
         } catch(StreamingDloadSerialError& e) {
             file.close();
-            emit error(message.sprintf("Error reading %lu bytes from address 0x%08X: %s", step, (address + total), e.what()));
+            emit error(message.sprintf("Error reading %lu bytes from LBA 0x%08X: %s", step, (address + total), e.what()));
             return;
         } catch(SerialError& e) {
             file.close();
-            emit error(message.sprintf("Error reading %lu bytes from address 0x%08X: %s", step, (address + total), e.what()));
+            emit error(message.sprintf("Error reading %lu bytes from LBA 0x%08X: %s", step, (address + total), e.what()));
             return;
         } catch (...) {
             file.close();

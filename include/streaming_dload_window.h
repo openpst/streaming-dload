@@ -38,6 +38,7 @@
 #include "qualcomm/streaming_dload.h"
 #include "qualcomm/streaming_dload_serial.h"
 #include "qualcomm/raw_program_xml_reader.h"
+#include "lg/partition_txt_reader.h"
 #include "task/streaming_dload_read_task.h"
 #include "task/streaming_dload_stream_write_task.h"
 #include "task/streaming_dload_read_gpt_task.h"
@@ -55,6 +56,9 @@ using OpenPST::QC::StreamingDloadSerialError;
 using OpenPST::QC::RawProgramXmlReader;
 using OpenPST::QC::RawProgramXmlReaderError;
 using OpenPST::QC::RawProgramXmlEntry;
+using OpenPST::LG::PartitionTxtReader;
+using OpenPST::LG::PartitionTxtReaderError;
+using OpenPST::LG::PartitionTxtEntry;
 using OpenPST::Serial::SerialError;
 
 namespace OpenPST{
@@ -62,6 +66,12 @@ namespace OpenPST{
 
 		struct ResolvedRawProgramXmlEntry {
 			RawProgramXmlEntry entry;
+			QString sourceFile;
+			QString path;
+		};
+
+		struct ResolvedPartitionTxtEntry {
+			PartitionTxtEntry entry;
 			QString sourceFile;
 			QString path;
 		};
@@ -107,6 +117,12 @@ namespace OpenPST{
 				kGptMbrRowSignature
 			};
 
+			enum AutoWriteFormats {
+				kAutoWriteFormatRawProgram = 1,
+				kAutoWriteFormatLgPartitionTxt = 2,
+				kAutoWriteFormatGptHeaderMeta = 3
+			};
+
             private:
                 Ui::StreamingDloadWindow *ui;
                 TaskRunner taskRunner;
@@ -114,8 +130,7 @@ namespace OpenPST{
 				StreamingDloadSerial port;
                 serial::PortInfo currentPort;
                 int taskCount = 0;
-                AboutDialog aboutDialog;
-                std::vector<ResolvedRawProgramXmlEntry> rawProgramEntries;
+                AboutDialog aboutDialog;                
 			public:
 				explicit StreamingDloadWindow(QWidget *parent = 0);
 				~StreamingDloadWindow();
@@ -284,19 +299,19 @@ namespace OpenPST{
 				void onTaskLog(QString msg);
 
 				/**
-				* @brief browseForRawProgramXml	
+				* @brief browseForAutoWriteMeta	
 				*/
-				void browseForRawProgramXml();
+				void browseForAutoWriteMeta();
 
 				/**
-				* @brief checkRawProgramXml	
+				* @brief checkAutoWriteFormat	
 				*/
-				void checkRawProgramXml();
+				void checkAutoWriteFormat();
 
 				/**
-				* @brief checkRawProgramXml	
+				* @brief runAutoWrite	
 				*/
-				void runRawProgramXml();
+				void runAutoWrite();
 
             protected:
 				/**
@@ -310,10 +325,23 @@ namespace OpenPST{
 
                 void addTask(Task* task);
 
+                void checkRawprogramXmlAutoWriteFile();
+
+                void checkPartitionTxtAutoWriteFile();
+
+                void runAutoWriteRawProgramXml();
+
+                void runAutoWritePartitionTxt();
+
 				/**
 				* @brief parseRawXml
 				*/
-				void parseRawXml(const QString& filePath);
+				std::vector<ResolvedRawProgramXmlEntry> parseRawProgramXml(const QString& filePath);
+				
+				/**
+				* @brief parseRawXml
+				*/
+				std::vector<ResolvedPartitionTxtEntry> parsePartitionTxt(const QString& filePath);
 			};
 	}
 }

@@ -320,8 +320,8 @@
      <widget class="QGroupBox" name="eccGroupBox">
       <property name="geometry">
        <rect>
-        <x>10</x>
-        <y>200</y>
+        <x>470</x>
+        <y>120</y>
         <width>251</width>
         <height>71</height>
        </rect>
@@ -396,9 +396,9 @@
      <widget class="QGroupBox" name="miscGroupBox">
       <property name="geometry">
        <rect>
-        <x>280</x>
+        <x>10</x>
         <y>200</y>
-        <width>181</width>
+        <width>711</width>
         <height>131</height>
        </rect>
       </property>
@@ -470,43 +470,6 @@
        </property>
       </widget>
      </widget>
-     <widget class="QTableWidget" name="sectorsTableWidget">
-      <property name="geometry">
-       <rect>
-        <x>480</x>
-        <y>140</y>
-        <width>361</width>
-        <height>191</height>
-       </rect>
-      </property>
-      <attribute name="horizontalHeaderStretchLastSection">
-       <bool>true</bool>
-      </attribute>
-      <column>
-       <property name="text">
-        <string>Size</string>
-       </property>
-      </column>
-     </widget>
-     <widget class="QLabel" name="flashSectorsLabel">
-      <property name="geometry">
-       <rect>
-        <x>480</x>
-        <y>115</y>
-        <width>361</width>
-        <height>21</height>
-       </rect>
-      </property>
-      <property name="font">
-       <font>
-        <weight>75</weight>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="text">
-       <string>Flash Sectors</string>
-      </property>
-     </widget>
     </widget>
     <widget class="QWidget" name="readWriteTab">
      <attribute name="title">
@@ -530,7 +493,7 @@
        </font>
       </property>
       <property name="title">
-       <string>Read</string>
+       <string>Read Flash</string>
       </property>
       <widget class="QPushButton" name="readButton">
        <property name="geometry">
@@ -627,7 +590,7 @@
         <string>LBA</string>
        </property>
       </widget>
-      <widget class="QLineEdit" name="readSizeValue_2">
+      <widget class="QLineEdit" name="readSectorSizeValue">
        <property name="geometry">
         <rect>
          <x>600</x>
@@ -646,7 +609,7 @@
         <string>512</string>
        </property>
       </widget>
-      <widget class="QLabel" name="readSizeLabel_2">
+      <widget class="QLabel" name="readSectorSizeLabel">
        <property name="geometry">
         <rect>
          <x>520</x>
@@ -662,7 +625,7 @@
         </font>
        </property>
        <property name="text">
-        <string>Block Size</string>
+        <string>Sector Size</string>
        </property>
       </widget>
      </widget>
@@ -683,7 +646,7 @@
        </font>
       </property>
       <property name="title">
-       <string>Stream Write</string>
+       <string>Stream Write Flash</string>
       </property>
       <widget class="QLineEdit" name="writeFileValue">
        <property name="geometry">
@@ -800,12 +763,15 @@
        </property>
       </widget>
       <widget class="QCheckBox" name="unframedWriteCheckbox">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="geometry">
         <rect>
-         <x>10</x>
+         <x>170</x>
          <y>110</y>
-         <width>221</width>
-         <height>20</height>
+         <width>91</width>
+         <height>31</height>
         </rect>
        </property>
        <property name="font">
@@ -815,15 +781,15 @@
         </font>
        </property>
        <property name="text">
-        <string>Unframed (Faster if supported)</string>
+        <string>Unframed</string>
        </property>
       </widget>
-      <widget class="QLabel" name="writeAddressLabel_2">
+      <widget class="QLabel" name="writeSectorSizeLabel">
        <property name="geometry">
         <rect>
-         <x>240</x>
+         <x>220</x>
          <y>70</y>
-         <width>71</width>
+         <width>91</width>
          <height>27</height>
         </rect>
        </property>
@@ -834,10 +800,10 @@
         </font>
        </property>
        <property name="text">
-        <string>Block Size</string>
+        <string>Sector Size</string>
        </property>
       </widget>
-      <widget class="QLineEdit" name="writeAddressValue_2">
+      <widget class="QLineEdit" name="writeSectorSizeValue">
        <property name="geometry">
         <rect>
          <x>320</x>
@@ -854,6 +820,28 @@
        </property>
        <property name="text">
         <string>512</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="eraseFlashButton">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>110</y>
+         <width>111</width>
+         <height>27</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="autoFillBackground">
+        <bool>false</bool>
+       </property>
+       <property name="text">
+        <string>Erase Flash</string>
        </property>
       </widget>
      </widget>
@@ -1009,22 +997,6 @@
        </property>
       </widget>
      </widget>
-     <widget class="QPushButton" name="eraseFlashButton">
-      <property name="geometry">
-       <rect>
-        <x>500</x>
-        <y>90</y>
-        <width>171</width>
-        <height>27</height>
-       </rect>
-      </property>
-      <property name="autoFillBackground">
-       <bool>false</bool>
-      </property>
-      <property name="text">
-       <string>Erase Flash !DANGER!</string>
-      </property>
-     </widget>
      <widget class="QGroupBox" name="rawProgramXmlGroupBox">
       <property name="geometry">
        <rect>
@@ -1042,9 +1014,9 @@
        </font>
       </property>
       <property name="title">
-       <string>Auto Restore</string>
+       <string>Auto Write</string>
       </property>
-      <widget class="QToolButton" name="autoRestoreFileBrowseButton">
+      <widget class="QToolButton" name="autoWriteFileBrowseButton">
        <property name="geometry">
         <rect>
          <x>370</x>
@@ -1063,7 +1035,7 @@
         <string>...</string>
        </property>
       </widget>
-      <widget class="QLabel" name="autoRestoreFormatLabel">
+      <widget class="QLabel" name="autoWriteFormatLabel">
        <property name="geometry">
         <rect>
          <x>10</x>
@@ -1082,7 +1054,7 @@
         <string>Using Format:</string>
        </property>
       </widget>
-      <widget class="QLineEdit" name="autoRestoreFileValue">
+      <widget class="QLineEdit" name="autoWriteFileValue">
        <property name="geometry">
         <rect>
          <x>10</x>
@@ -1101,12 +1073,12 @@
         <string/>
        </property>
       </widget>
-      <widget class="QPushButton" name="autoRestoreWriteButton">
+      <widget class="QPushButton" name="autoWriteButton">
        <property name="geometry">
         <rect>
-         <x>280</x>
+         <x>310</x>
          <y>110</y>
-         <width>121</width>
+         <width>91</width>
          <height>27</height>
         </rect>
        </property>
@@ -1120,12 +1092,12 @@
         <string>Write</string>
        </property>
       </widget>
-      <widget class="QPushButton" name="autoRestoreCheckButton">
+      <widget class="QPushButton" name="autoWriteCheckButton">
        <property name="geometry">
         <rect>
-         <x>150</x>
+         <x>200</x>
          <y>110</y>
-         <width>121</width>
+         <width>91</width>
          <height>27</height>
         </rect>
        </property>
@@ -1139,7 +1111,7 @@
         <string>Check</string>
        </property>
       </widget>
-      <widget class="QComboBox" name="autoRestoreFormatComboBox">
+      <widget class="QComboBox" name="autoWriteFormatComboBox">
        <property name="geometry">
         <rect>
          <x>110</x>
@@ -1154,28 +1126,50 @@
          <bold>false</bold>
         </font>
        </property>
-       <item>
-        <property name="text">
-         <string>Qualcomm rawprogram0.xml</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>LG partition.txt</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>GPT</string>
-        </property>
-       </item>
+      </widget>
+      <widget class="QLineEdit" name="autoWriteSectorSizeValue">
+       <property name="geometry">
+        <rect>
+         <x>110</x>
+         <y>110</y>
+         <width>81</width>
+         <height>27</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>512</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="autoWriteSectorSizeLabel">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>110</y>
+         <width>81</width>
+         <height>27</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Sector Size</string>
+       </property>
       </widget>
      </widget>
      <zorder>writeGroupBox</zorder>
      <zorder>readGroupBox</zorder>
      <zorder>openModeGroupBox</zorder>
      <zorder>openMultiGroupBox</zorder>
-     <zorder>eraseFlashButton</zorder>
      <zorder>rawProgramXmlGroupBox</zorder>
     </widget>
     <widget class="QWidget" name="partitionTab">

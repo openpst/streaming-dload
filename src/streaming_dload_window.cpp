@@ -85,6 +85,10 @@ StreamingDloadWindow::StreamingDloadWindow(QWidget *parent) :
 	ui->openMultiValue->addItem("EMMC GPP4", kStreamingDloadOpenModeMultiGpp4);
 	ui->openMultiValue->setCurrentIndex(0);
 
+	ui->autoWriteFormatComboBox->addItem("Qualcomm rawprogram0.xml", kAutoWriteFormatRawProgram);
+	ui->autoWriteFormatComboBox->addItem("LG partition.txt", kAutoWriteFormatLgPartitionTxt);
+	//ui->autoWriteFormatComboBox->addItem("From GPT Header Meta", kAutoWriteFormatGptHeaderMeta);
+
 	QObject::connect(ui->portRefreshButton, SIGNAL(clicked()), this, SLOT(updatePortList()));
 	QObject::connect(ui->portDisconnectButton, SIGNAL(clicked()), this, SLOT(disconnectPort()));
 	QObject::connect(ui->portConnectButton, SIGNAL(clicked()), this, SLOT(connectToPort()));	
@@ -110,13 +114,10 @@ StreamingDloadWindow::StreamingDloadWindow(QWidget *parent) :
 	QObject::connect(ui->readGptFromDeviceButton, SIGNAL(clicked()), this, SLOT(readGptFromDevice()));
 	QObject::connect(ui->progressGroupBox->cancelButton, SIGNAL(clicked()), this, SLOT(cancelCurrentTask()));
 	QObject::connect(ui->progressGroupBox->cancelAllButton, SIGNAL(clicked()), this, SLOT(cancelAllTasks()));
-	QObject::connect(ui->rawProgramXmlCheckButton, SIGNAL(clicked()), this, SLOT(checkRawProgramXml()));
-	QObject::connect(ui->rawProgramXmlWriteButton, SIGNAL(clicked()), this, SLOT(runRawProgramXml()));
-	QObject::connect(ui->rawProgramXmlFileBrowseButton, SIGNAL(clicked()), this, SLOT(browseForRawProgramXml()));
-
-
-
-
+	QObject::connect(ui->autoWriteCheckButton, SIGNAL(clicked()), this, SLOT(checkAutoWriteFormat()));
+	QObject::connect(ui->autoWriteButton, SIGNAL(clicked()), this, SLOT(runAutoWrite()));
+	QObject::connect(ui->autoWriteFileBrowseButton, SIGNAL(clicked()), this, SLOT(browseForAutoWriteMeta()));
+	QObject::connect(ui->eraseFlashButton, SIGNAL(clicked()), this, SLOT(eraseFlash()));
 
 	updatePortList();
 }
@@ -260,16 +261,6 @@ void StreamingDloadWindow::sendHello()
 	log(tmp.sprintf("Flash ID Length: %d", port.state.hello.flashIdLength));	
 	log(tmp.sprintf("Flash Identifier: %s", port.state.hello.flashIdenfier));
 	log(tmp.sprintf("Window Size: %d", port.state.hello.windowSize));
-	log(tmp.sprintf("Number of Sectors: %d", port.state.hello.numberOfSectors));
-	
-	
-	// dump all sector sizes
-	ui->sectorsTableWidget->setRowCount(port.state.hello.numberOfSectors);
-
-	for (int i = 0; i < port.state.hello.numberOfSectors; i++) {
-		ui->sectorsTableWidget->setItem(i, 0, new QTableWidgetItem(tmp.sprintf("%lu - 0x%08X", port.state.hello.sectorSizes[i],
-			port.state.hello.sectorSizes[i])));
-	}
 
 	log(tmp.sprintf("Feature Bits: %02X", port.state.hello.featureBits));
 
@@ -678,9 +669,14 @@ void StreamingDloadWindow::eraseFlash()
 		tr("If this operation fails, it can make the device inoperable and only able to be restored by JTAG. Continue?"));
 
 	if (confirmation == QMessageBox::Yes) {
-
+		try {
+			port.eraseFlash();
+		} catch (StreamingDloadSerialError& e) {
+			log(e.what());
+		} catch(SerialError& e) {
+			log(e.what());
+		}	
 	}
-
 }
 
 
@@ -744,7 +740,7 @@ void StreamingDloadWindow::parseGpt(QString filePath)
 	ui->gptMbrInfoTable->setItem(kGptMbrRowEndSector, 1, new QTableWidgetItem(tmp.sprintf("0x%02X", gpt.mbr.partition[0].endSector)));
 	ui->gptMbrInfoTable->setItem(kGptMbrRowEndTrack, 1, new QTableWidgetItem(tmp.sprintf("0x%02X", gpt.mbr.partition[0].endTrack)));
 	ui->gptMbrInfoTable->setItem(kGptMbrRowStartingLba, 1, new QTableWidgetItem(tmp.sprintf("0x%08X", gpt.mbr.partition[0].startingLba)));
-	ui->gptMbrInfoTable->setItem(kGptMbrRowLbaSize, 1, new QTableWidgetItem(tmp.sprintf("%lu", gpt.mbr.partition[0].lbaSize)));
+	ui->gptMbrInfoTable->setItem(kGptMbrRowLbaSize, 1, new QTableWidgetItem(tmp.sprintf("%lu (0x%08X", gpt.mbr.partition[0].lbaSize, gpt.mbr.partition[0].lbaSize)));
 	ui->gptMbrInfoTable->setItem(kGptMbrRowSignature, 1, new QTableWidgetItem(tmp.sprintf("0x%04X", gpt.mbr.signature)));
 
 	ui->gptHeaderInfoTable->setItem(kGptHeaderRowSignature, 1, new QTableWidgetItem(tmp.sprintf("%s", &gpt.header.signature[0])));
@@ -934,22 +930,21 @@ void StreamingDloadWindow::closeEvent(QCloseEvent *event)
 	event->accept();
 }
 
-void StreamingDloadWindow::browseForRawProgramXml()
+void StreamingDloadWindow::browseForAutoWriteMeta()
 {
-	QString fileName = QFileDialog::getOpenFileName(this, tr("Select rawprogram0.xml"), "", tr("XML Files (*.xml)"));
+	QString fileName = QFileDialog::getOpenFileName(this, tr("Select file"), "", tr("*.*"));
 
 	if (fileName.length()) {
-		ui->rawProgramXmlFileValue->setText(fileName);
+		ui->autoWriteFileValue->setText(fileName);
 	}
 }
 
-void StreamingDloadWindow::parseRawXml(const QString& filePath)
+std::vector<ResolvedRawProgramXmlEntry> StreamingDloadWindow::parseRawProgramXml(const QString& filePath)
 {
 	QString tmp;
 	RawProgramXmlReader reader;
 	std::vector<RawProgramXmlEntry> entries;
-
-	rawProgramEntries.clear();
+	std::vector<ResolvedRawProgramXmlEntry> ret;
 
 	int numberOfSectors = 128;
 	if (port.state.negotiated && port.state.hello.numberOfSectors){
@@ -959,18 +954,11 @@ void StreamingDloadWindow::parseRawXml(const QString& filePath)
 		log(tmp.sprintf("Hello has not been established. Parsing with assumed %d sectors.", numberOfSectors));
 	}
 
-	try {
-		entries = reader.parse(filePath.toStdString(), numberOfSectors);
-	} catch(RawProgramXmlReaderError& e) {
-		log(tmp.sprintf("Error parsing XML: %s", e.what()));
-		return;
-	} catch (...) {
-		log(tr("Error parsing XML: Unhandled exception"));
-	}
-
+	entries = reader.parse(filePath.toStdString(), numberOfSectors);
+	
 	if (!entries.size()) {
 		log(tr("No entries found referenced in xml document"));
-		return;
+		return ret;
 	}
 
 	log(tmp.sprintf("Found %lu entries referenced in xml document", entries.size()));
@@ -1002,12 +990,137 @@ void StreamingDloadWindow::parseRawXml(const QString& filePath)
 			e.path = "";
 		}
 
-		rawProgramEntries.push_back(e);
+		ret.push_back(e);
+	}
+
+	return ret;
+
+	
+
+}
+
+std::vector<ResolvedPartitionTxtEntry> StreamingDloadWindow::parsePartitionTxt(const QString& filePath)
+{
+	
+	QString tmp;
+	PartitionTxtReader reader;
+	std::vector<PartitionTxtEntry> entries;
+	std::vector<ResolvedPartitionTxtEntry> ret;
+
+	entries = reader.parse(filePath.toStdString());
+	
+	if (!entries.size()) {
+		log(tr("No entries found referenced in xml document"));
+		return ret;
+	}
+
+	log(tmp.sprintf("Found %lu entries referenced in file", entries.size()));
+
+	QFileInfo fileInfo(filePath);
+	QDir fileDir 	= fileInfo.dir();
+	QDir applicationDir = QDir::current();
+
+	log(tr("Searching the following directories for relative images:"));
+	log(tr("\t- Specified absolute path to image"));
+	log("\t- " + fileDir.path());
+	log("\t- " + applicationDir.path());
+
+	for (auto &entry : entries) {
+		ResolvedPartitionTxtEntry e;
+
+		e.entry 	 = entry;
+		e.sourceFile = filePath;
+		
+		QString entryFile = entry.file;
+
+		QFileInfo absoluteInfo(entryFile);
+	
+		if (absoluteInfo.exists()) {
+			e.path = absoluteInfo.path();
+		} else if (fileDir.exists(entryFile)) {
+			e.path = fileDir.filePath(entryFile);
+		} else if(applicationDir.exists(entryFile)) {
+			e.path = applicationDir.filePath(entryFile);
+		} else {
+			e.path = "";
+		}
+
+		ret.push_back(e);
+	}
+
+	return ret;
+}
+
+void StreamingDloadWindow::checkAutoWriteFormat()
+{
+	
+	QString tmp;
+
+	int format = ui->autoWriteFormatComboBox->currentData().toInt();
+	
+	if (!ui->autoWriteFileValue->text().length()) {
+		log(tr("Enter or browse for a valid file"));
+		return;
+	}
+
+	if (format == kAutoWriteFormatRawProgram) {
+		checkRawprogramXmlAutoWriteFile();
+	} else if (format == kAutoWriteFormatLgPartitionTxt) {
+		checkPartitionTxtAutoWriteFile();
+	} else {
+		log(tr("Unsupported Format"));
+	}
+
+}
+
+void StreamingDloadWindow::runAutoWrite()
+{
+	QString tmp;
+
+	int format = ui->autoWriteFormatComboBox->currentData().toInt();
+	
+	if (!ui->autoWriteFileValue->text().length()) {
+		log(tr("Enter or browse for a valid file"));
+		return;
+	}
+
+	if (format == kAutoWriteFormatRawProgram) {
+		runAutoWriteRawProgramXml();
+	} else if (format == kAutoWriteFormatLgPartitionTxt) {
+		runAutoWritePartitionTxt();
+	} else {
+		log(tr("Unsupported Format"));
+	}
+}
+
+void StreamingDloadWindow::checkRawprogramXmlAutoWriteFile()
+{
+	
+	if (!ui->autoWriteFileValue->text().length()) {
+		log(tr("Enter or browse for a valid file"));
+		return;
+	}
+
+	QString tmp;
+	std::vector<ResolvedRawProgramXmlEntry> entries;
+
+	try {
+		entries = parseRawProgramXml(ui->autoWriteFileValue->text());
+	} catch(RawProgramXmlReaderError& e) {
+		log(e.what());
+		return;
+	} catch(...) {
+		log(tr("Unexpected Error"));
+		return;
+	}
+
+	if (!entries.size()) {
+		log(tr("No entries found in file"));
 	}
 
 	TableDialog dialog;
 
-	dialog.setTitle("Raw Program XML Overview for " + filePath);
+	dialog.setTitle("Raw Program XML Overview for " + ui->autoWriteFileValue->text());
 	dialog.setWindowTitle(tr("Raw Program XML Overview"));
 
 	QTableWidget* table = dialog.getTableWidget();
@@ -1029,10 +1142,10 @@ void StreamingDloadWindow::parseRawXml(const QString& filePath)
 	table->setHorizontalHeaderItem(13, new QTableWidgetItem(tr("Size")));
 	table->setHorizontalHeaderItem(14, new QTableWidgetItem(tr("Size in KB")));
 
-	table->setRowCount(rawProgramEntries.size());
+	table->setRowCount(entries.size());
 
 	int row = 0;
-	for (auto &entry : rawProgramEntries) {
+	for (auto &entry : entries) {
 		table->setItem(row, 0, new QTableWidgetItem(tmp.sprintf("%s", entry.entry.label.c_str())));
 		table->setItem(row, 1, new QTableWidgetItem(tmp.sprintf("%s", entry.entry.fileName.c_str())));
 		if (entry.path.length()) {
@@ -1060,26 +1173,112 @@ void StreamingDloadWindow::parseRawXml(const QString& filePath)
 	dialog.exec();
 }
 
-void StreamingDloadWindow::checkRawProgramXml()
+void StreamingDloadWindow::checkPartitionTxtAutoWriteFile()
 {
+	if (!ui->autoWriteFileValue->text().length()) {
+		log(tr("Enter or browse for a valid file"));
+		return;
+	}
+
 	QString tmp;
+	std::vector<ResolvedPartitionTxtEntry> entries;
 
-	if (!ui->rawProgramXmlFileValue->text().length()) {
-		log(tr("Enter or browse for a valid rawprogram0.xml file"));
+	try {
+		entries = parsePartitionTxt(ui->autoWriteFileValue->text());
+	} catch(PartitionTxtReaderError& e) {
+		log(e.what());
+		return;
+	} catch(...) {
+		log(tr("Unexpected Error"));
 		return;
 	}
 
-	parseRawXml(ui->rawProgramXmlFileValue->text());
-
-	if (!rawProgramEntries.size()) {
-		return;
+	if (!entries.size()) {
+		log(tr("No entries found in file"));
 	}
 
+	TableDialog dialog;
+
+	dialog.setTitle("LG partition.txt Overview for " + ui->autoWriteFileValue->text());
+	dialog.setWindowTitle(tr("LG partition.txt Overview"));
+
+	QTableWidget* table = dialog.getTableWidget();
+
+	table->setColumnCount(5);
+	table->setHorizontalHeaderItem(0,  new QTableWidgetItem(tr("LBA")));
+	table->setHorizontalHeaderItem(1,  new QTableWidgetItem(tr("Sectors in LBA")));
+	table->setHorizontalHeaderItem(2,  new QTableWidgetItem(tr("Resolved Path")));
+	table->setHorizontalHeaderItem(3,  new QTableWidgetItem(tr("Name")));
+	table->setHorizontalHeaderItem(4,  new QTableWidgetItem(tr("File")));
+
+	table->setRowCount(entries.size());
+
+
+	int row = 0;
+	for (auto &entry : entries) {
+		table->setItem(row, 0, new QTableWidgetItem(tmp.sprintf("%08X", entry.entry.lba)));
+		table->setItem(row, 1, new QTableWidgetItem(tmp.sprintf("%lu", entry.entry.sectors)));
+		table->setItem(row, 2, new QTableWidgetItem(tmp.sprintf("%s", entry.path.toStdString().c_str())));
+		table->setItem(row, 3, new QTableWidgetItem(tmp.sprintf("%s", &entry.entry.name)));
+		table->setItem(row, 4, new QTableWidgetItem(tmp.sprintf("%s", &entry.entry.file)));
+		row++;
+	}
+
+	dialog.exec();
 }
 
-void StreamingDloadWindow::runRawProgramXml()
+
+void StreamingDloadWindow::runAutoWriteRawProgramXml()
 {
-	
+	if (!ui->autoWriteFileValue->text().length()) {
+		log(tr("Enter or browse for a valid file"));
+		return;
+	}
+}
 
+void StreamingDloadWindow::runAutoWritePartitionTxt()
+{
+	if (!ui->autoWriteFileValue->text().length()) {
+		log(tr("Enter or browse for a valid file"));
+		return;
+	}
 
+	QString tmp;
+	std::vector<ResolvedPartitionTxtEntry> entries;
+
+	try {
+		entries = parsePartitionTxt(ui->autoWriteFileValue->text());
+	} catch(PartitionTxtReaderError& e) {
+		log(e.what());
+		return;
+	} catch(...) {
+		log(tr("Unexpected Error"));
+		return;
+	}
+
+	if (!entries.size()) {
+		log(tr("No entries found in file"));
+	}
+
+	for (auto &entry : entries) {
+		std::string name = entry.entry.name;
+		if (name.compare("system") == 0 || 
+			name.compare("cache") == 0 || 
+			name.compare("userdata") == 0 ||
+			name.compare("misc") == 0 ||
+			name.compare("persist") == 0 ||
+			name.compare("modem") == 0 
+		) {
+			continue;
+		}
+
+		if (taskRunner.isRunning()) {
+			log(tmp.sprintf("Queued Writing %s to LBA 0x%08X", entry.path.toStdString().c_str(), entry.entry.lba));
+		} else {
+			log(tmp.sprintf("Writing %s to LBA 0x%08X", entry.path.toStdString().c_str(), entry.entry.lba));
+		}
+		
+
+		addTask(new StreamingDloadStreamWriteTask(entry.entry.lba, entry.path.toStdString(), false, ui->progressGroupBox, port));
+	}
 }
