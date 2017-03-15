@@ -313,6 +313,33 @@ namespace OpenPST{
 				*/
 				void runAutoWrite();
 
+
+				/**
+				* @brief onFlashSizeChange	
+				*/
+				void onFlashSizeChange();
+
+				/**
+				* @brief onSectorSizeChange	
+				*/
+				void onSectorSizeChange();
+
+				/**
+				* @brief onMaxSectorsChange	
+				*/
+				void onMaxSectorsChange();
+
+				/**
+				* @brief flashSettingsReadGptFromDevice	
+				*/
+				void flashSettingsReadGptFromDevice();
+
+				/**
+				* @brief flashSettingsBrowseForGptFileAndParse	
+				*/
+				void flashSettingsBrowseForGptFileAndParse();
+
+
             protected:
 				/**
 				* @brief onTaskLog

@@ -89,6 +89,22 @@ StreamingDloadWindow::StreamingDloadWindow(QWidget *parent) :
 	ui->autoWriteFormatComboBox->addItem("LG partition.txt", kAutoWriteFormatLgPartitionTxt);
 	//ui->autoWriteFormatComboBox->addItem("From GPT Header Meta", kAutoWriteFormatGptHeaderMeta);
 
+	ui->readWriteSettingsFlashSizeValue->addItem("", 0);
+	ui->readWriteSettingsFlashSizeValue->addItem("1GB", 1);
+	ui->readWriteSettingsFlashSizeValue->addItem("2GB", 2);
+	ui->readWriteSettingsFlashSizeValue->addItem("4GB", 4);
+	ui->readWriteSettingsFlashSizeValue->addItem("8GB", 8);
+	ui->readWriteSettingsFlashSizeValue->addItem("16GB", 16);
+	ui->readWriteSettingsFlashSizeValue->addItem("32GB", 32);
+	ui->readWriteSettingsFlashSizeValue->addItem("64GB", 64);
+	ui->readWriteSettingsFlashSizeValue->addItem("128GB", 128);
+	ui->readWriteSettingsFlashSizeValue->addItem("256GB", 256);
+	ui->readWriteSettingsFlashSizeValue->addItem("Custom Max Sectors", 0);
+	ui->readWriteSettingsFlashSizeValue->setCurrentIndex(0);
+
+	ui->readWriteSettingsSectorSizeValue->addItem("512 bytes", 512);
+	ui->readWriteSettingsSectorSizeValue->setCurrentIndex(0);
+
 	QObject::connect(ui->portRefreshButton, SIGNAL(clicked()), this, SLOT(updatePortList()));
 	QObject::connect(ui->portDisconnectButton, SIGNAL(clicked()), this, SLOT(disconnectPort()));
 	QObject::connect(ui->portConnectButton, SIGNAL(clicked()), this, SLOT(connectToPort()));	
@@ -118,6 +134,16 @@ StreamingDloadWindow::StreamingDloadWindow(QWidget *parent) :
 	QObject::connect(ui->autoWriteButton, SIGNAL(clicked()), this, SLOT(runAutoWrite()));
 	QObject::connect(ui->autoWriteFileBrowseButton, SIGNAL(clicked()), this, SLOT(browseForAutoWriteMeta()));
 	QObject::connect(ui->eraseFlashButton, SIGNAL(clicked()), this, SLOT(eraseFlash()));
+
+
+	//QObject::connect(ui->readWriteSettingsFlashTypeValue, SIGNAL(textChanged(const QString&)), this, SLOT(onFlashTypeChange()));
+	QObject::connect(ui->readWriteSettingsFlashSizeValue, SIGNAL(textChanged(const QString&)), this, SLOT(onFlashSizeChange()));
+	QObject::connect(ui->readWriteSettingsSectorSizeValue, SIGNAL(textChanged(const QString&)), this, SLOT(onSectorSizeChange()));
+	//QObject::connect(ui->readWriteSettingsMaxSectorsValue, SIGNAL(textChanged(const QString&)), this, SLOT(onMaxSectorsChange()));
+	QObject::connect(ui->readWriteSettingsReadMaxSectorsFromFlashButton, SIGNAL(clicked()), this, SLOT(flashSettingsReadGptFromDevice()));
+	QObject::connect(ui->readWriteSettingsReadMaxSectorsFromFileButton, SIGNAL(clicked()), this, SLOT(flashSettingsBrowseForGptFileAndParse()));
+
+
 
 	updatePortList();
 }
@@ -1281,4 +1307,58 @@ void StreamingDloadWindow::runAutoWritePartitionTxt()
 
 		addTask(new StreamingDloadStreamWriteTask(entry.entry.lba, entry.path.toStdString(), false, ui->progressGroupBox, port));
 	}
+}
+
+void StreamingDloadWindow::onFlashSizeChange()
+{
+	int flashSizeSelection  = ui->readWriteSettingsFlashSizeValue->currentData().toInt();
+	int blockSizeValue 	    = ui->readWriteSettingsSectorSizeValue->currentData().toInt();
+	int lastLba 			= 0;
+
+	// IDEMA Standard LBA 1-03 specification
+	// http://www.idema.org/wp-content/plugins/download-monitor/download.php?id=1223
+	if (flashSizeSelection) {
+		if (blockSizeValue == 4096) {
+			lastLba = (12212046 + (244188 * (flashSizeSelection - 50)));
+		} else {
+			lastLba = (97696368 + (1953504 * (flashSizeSelection - 50)));
+		}
+	}
+
+	ui->readWriteSettingsMaxSectorsValue->setText(std::to_string(lastLba).c_str());
+}
+
+void StreamingDloadWindow::onSectorSizeChange()
+{
+
+}
+
+void StreamingDloadWindow::onMaxSectorsChange()
+{
+
+}
+
+void StreamingDloadWindow::flashSettingsReadGptFromDevice()
+{
+
+}
+
+void StreamingDloadWindow::flashSettingsBrowseForGptFileAndParse()
+{
+	QString fileName = QFileDialog::getOpenFileName(this, tr("Browse For File"), "", "*.*");
+	
+	if (fileName.length()) {
+		parseGpt(fileName);
+		if (ui->gptHeaderInfoTable->rowCount() > 0) {
+			QTableWidgetItem* lastUsableLbaRow = ui->gptHeaderInfoTable->item(kGptHeaderRowLastUsableLBA, 1);
+			if (lastUsableLbaRow) {
+				log(lastUsableLbaRow->text());
+				uint32_t lastUsableLba = std::strtoul(lastUsableLbaRow->text().toStdString().c_str(), nullptr, 16);
+				ui->readWriteSettingsFlashSizeValue->setCurrentIndex(10);
+				ui->readWriteSettingsMaxSectorsValue->setText(std::to_string(lastUsableLba).c_str());
+			}
+		}
+	}
+	//ui->gptHeaderInfoTable->setItem(kGptHeaderRowLastUsableLBA, 1, new QTableWidgetItem(tmp.sprintf("0x%08X", gpt.header.lastUsableLba)));
+
 }
