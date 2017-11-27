@@ -1,6 +1,7 @@
 ####
 ## Makefile for openpst/streaming-dload
 ####
+QMAKE=qmake
 
 all: default
 
@@ -16,11 +17,11 @@ check:
 	if [ ! -d "./lib/libopenpst/lib/serial/include" ]; then cd ./lib/libopenpst/ && git submodule init && git submodule update;  fi
 
 _debug:
-	qmake -makefile -o ./build/Makefile streaming_dload.pro "CONFIG+=debug" "CONFIG-=release"
+	$(QMAKE) -makefile -o ./build/Makefile streaming_dload.pro "CONFIG+=debug" "CONFIG-=release"
 	$(MAKE) -C build
 
 _release:
-	qmake -makefile -o ./build/Makefile streaming_dload.pro "CONFIG+=release" "CONFIG-=debug"
+	$(QMAKE) -makefile -o ./build/Makefile streaming_dload.pro "CONFIG+=release" "CONFIG-=debug"
 	$(MAKE) -C build
 
 clean:
