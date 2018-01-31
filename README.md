@@ -12,3 +12,7 @@ Usage will come at some point
 
 ### Misc Notes
 None for you at this moment my friend
+
+### Pre-Builts
+
+Some pre-builds available https://github.com/openpst/streaming-dload/releases
